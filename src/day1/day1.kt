@@ -8,7 +8,7 @@ fun main() {
     println(processCouple(2020))
     println("Part 2")
     println(processTriple(2020))
-    println(processTripleNested(2020))
+    println(processTripleRecursive(2020))
 }
 
 fun processCouple(total: Int): Int? {
@@ -26,24 +26,24 @@ fun processCouple(total: Int): Int? {
 fun processTriple(total: Int): Int? {
     expenses.forEach{ expense ->
         val difference = total - expense
-        val nested = processCouple(difference)
-        if (nested != null) {
-            return expense * nested
+        val innerExpense = processCouple(difference)
+        if (innerExpense != null) {
+            return expense * innerExpense
         }
     }
     return null
 }
 
-fun processTripleNested(total: Int): Int? {
+fun processTripleRecursive(total: Int): Int? {
     expenses.forEach{ expense ->
         val difference = total - expense
         if (difference == 0) {
             return expense
         }
         if (difference > 0) {
-            val nested = processTripleNested(difference)
-            if (nested != null) {
-                return expense * nested
+            val innerExpense = processTripleRecursive(difference)
+            if (innerExpense != null) {
+                return expense * innerExpense
             }
         }
     }
