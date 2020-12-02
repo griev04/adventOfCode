@@ -37,14 +37,15 @@ fun processTriple(total: Int): Int? {
     return null
 }
 
-fun processTripleRecursive(total: Int): Int? {
+fun processTripleRecursive(total: Int, depth: Int = 0): Int? {
     expenses.forEach { expense ->
         val difference = total - expense
-        if (difference == 0) {
+        // exit condition: target reached in 2 nested levels -> 3 numbers in total
+        if (difference == 0 && depth == 2) {
             return expense
         }
         if (difference > 0) {
-            val innerExpense = processTripleRecursive(difference)
+            val innerExpense = processTripleRecursive(difference, depth + 1)
             if (innerExpense != null) {
                 return expense * innerExpense
             }
