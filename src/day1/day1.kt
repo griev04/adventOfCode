@@ -8,10 +8,26 @@ fun main() {
     expenses = readTextFile("src/day1/input.txt").map { it.toInt() }
     val total = 2020
     println("Part 1")
+    println(processCoupleNaive(total))
     println(processCouple(total))
     println("Part 2")
+    println(processTripleNaive(total))
     println(processTriple(total))
     println(processTripleRecursive(total))
+}
+
+// PART 1
+
+fun processCoupleNaive(total: Int): Int {
+    var result = 0
+    expenses.forEach { expense ->
+        val difference = total - expense
+        val isFound = expenses.find { it == difference } != null
+        if (isFound) {
+            result = expense * difference
+        }
+    }
+    return result
 }
 
 fun processCouple(total: Int): Int? {
@@ -26,6 +42,22 @@ fun processCouple(total: Int): Int? {
     return null
 }
 
+// PART 2
+
+fun processTripleNaive(total: Int): Int {
+    expenses.forEach { expense1 ->
+        expenses.forEach { expense2 ->
+            expenses.forEach { expense3 ->
+                if (expense1 + expense2 + expense3 == total) {
+                    return expense1 * expense2 * expense3
+                }
+            }
+        }
+    }
+    return 0
+}
+
+// Make use of previous method processCouple
 fun processTriple(total: Int): Int? {
     expenses.forEach { expense ->
         val difference = total - expense
