@@ -3,12 +3,16 @@ package day2
 import common.TextFileParser
 
 fun main() {
-    val credentials = TextFileParser.parse("src/day2/input.txt") { line -> parseCredential(line) { character, firstDigit, secondDigit -> Policy(character, firstDigit, secondDigit) } }
+    val credentials = TextFileParser.parseLines("src/day2/input.txt") { line ->
+        parseCredential(line) { character, firstDigit, secondDigit ->
+            Policy(character, firstDigit, secondDigit)
+        }
+    }
     println("Part 1")
     val validCredentials = credentials.count { it.isValid() }
     println(validCredentials)
     println("Part 2")
-    val credentials2 = TextFileParser.parse("src/day2/input.txt") { line -> parseCredential(line) { character, firstDigit, secondDigit -> PolicyPart2(character, firstDigit, secondDigit) } }
+    val credentials2 = TextFileParser.parseLines("src/day2/input.txt") { line -> parseCredential(line) { character, firstDigit, secondDigit -> PolicyPart2(character, firstDigit, secondDigit) } }
     val validCredentials2 = credentials2.count { it.isValid() }
     println(validCredentials2)
 }
@@ -30,14 +34,14 @@ class Credential(private val password: String, private val policy: IPolicy) {
     }
 }
 
-class Policy(private val character: Char, private val minOccurrence: Int, private val maxOccurrence: Int): IPolicy {
+class Policy(private val character: Char, private val minOccurrence: Int, private val maxOccurrence: Int) : IPolicy {
     override fun isPasswordCompliant(password: String): Boolean {
         val characterOccurrences = password.count { it == character }
         return characterOccurrences in minOccurrence..maxOccurrence
     }
 }
 
-class PolicyPart2(private val character: Char, private val firstPosition: Int, private val secondPosition: Int): IPolicy {
+class PolicyPart2(private val character: Char, private val firstPosition: Int, private val secondPosition: Int) : IPolicy {
     override fun isPasswordCompliant(password: String): Boolean {
         val firstOccurrence = password[firstPosition - 1] == character
         val secondOccurrence = password[secondPosition - 1] == character

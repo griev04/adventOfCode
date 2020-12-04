@@ -5,7 +5,9 @@ import common.TextFileParser
 lateinit var expenses: List<Int>
 
 fun main() {
-    expenses = TextFileParser.parse("src/day1/input.txt") { line -> line.toInt()}
+    expenses = TextFileParser.parseLines("src/day1/input.txt") { line ->
+        line.toInt()
+    }
     val total = 2020
     println("Part 1")
     println(processCoupleNaive(total))
