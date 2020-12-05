@@ -18,28 +18,21 @@ fun main() {
 fun findMissingSeatId(seats: List<Seat>): Int {
     val sortedSeatIds = seats.map { it.seatId }.sortedBy { it }
 
-    return searchMissingElementInConsecutiveList(sortedSeatIds)
+    return recursiveSearchMissingElementInConsecutiveList(sortedSeatIds)
 }
 
-// Binary search knowing that each element at position i will have value i + offset
+// Recursive binary search knowing that each element at position i will have value i + offset
 // With offset the first value of the list
-fun searchMissingElementInConsecutiveList(list: List<Int>): Int {
-    var lower = 0
-    var upper = list.size - 1
-    var mid: Int
-    val offset = list.first()
-
-    while (upper >= lower) {
-        mid = (upper + lower) / 2
-        if (list[mid] != mid + offset && list[mid-1] == mid - 1 + offset) {
-            return mid + offset
-        }
-        if (list[mid] != mid + offset && list[mid-1] != mid - 1 + offset) {
-            upper = mid
-        }
-        if (list[mid] == mid + offset) {
-            lower = mid
-        }
+fun recursiveSearchMissingElementInConsecutiveList(list: List<Int>, offset: Int = list.first(), lower: Int = 0, upper: Int = list.size - 1): Int {
+    val mid = (upper + lower) / 2
+    if (list[mid] != mid + offset && list[mid-1] == mid - 1 + offset) {
+        return mid + offset
+    }
+    if (list[mid] != mid + offset && list[mid-1] != mid - 1 + offset) {
+        return recursiveSearchMissingElementInConsecutiveList(list, offset, lower, mid)
+    }
+    if (list[mid] == mid + offset) {
+        return recursiveSearchMissingElementInConsecutiveList(list, offset, mid, upper)
     }
     return - 1
 }
@@ -80,3 +73,26 @@ class Seat(row: Int, column: Int) {
         }
     }
 }
+
+//// Binary search knowing that each element at position i will have value i + offset
+//// With offset the first value of the list
+//fun searchMissingElementInConsecutiveList(list: List<Int>): Int {
+//    var lower = 0
+//    var upper = list.size - 1
+//    var mid: Int
+//    val offset = list.first()
+//
+//    while (upper >= lower) {
+//        mid = (upper + lower) / 2
+//        if (list[mid] != mid + offset && list[mid-1] == mid - 1 + offset) {
+//            return mid + offset
+//        }
+//        if (list[mid] != mid + offset && list[mid-1] != mid - 1 + offset) {
+//            upper = mid
+//        }
+//        if (list[mid] == mid + offset) {
+//            lower = mid
+//        }
+//    }
+//    return - 1
+//}
