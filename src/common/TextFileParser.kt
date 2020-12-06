@@ -13,24 +13,12 @@ class TextFileParser {
             return transform(text)
         }
 
-        fun <T> parseAsIndexedMap(fileName: String, transform: (String) -> T): Map<Int, T> {
-            val lines = File(fileName).readLines()
-            val map = mutableMapOf<Int, T>()
-            lines.forEachIndexed { index, line ->
-                map[index] = transform(line)
+        fun <T> parseGroupedData(fileName: String, groupSeparator: String = "\n\n", transform: (List<String>) -> T): List<T> {
+            val text = File(fileName).readText()
+            return text.split(groupSeparator).map { group ->
+                val groupValues = group.replace("\n", " ").split(" ")
+                transform(groupValues)
             }
-            return map
-        }
-
-        fun getSizeOfGrid(fileName: String): Pair<Int, Int> {
-            val grid = File(fileName).readLines()
-            var maxLineLength = 0
-            grid.forEach { line ->
-                if (maxLineLength < line.length) {
-                    maxLineLength = line.length
-                }
-            }
-            return Pair(maxLineLength, grid.size)
         }
     }
 }

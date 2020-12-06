@@ -4,9 +4,10 @@ import common.TextFileParser
 import kotlin.math.roundToInt
 
 fun main() {
-    val passports = parseInput()
+    val passports = TextFileParser.parseGroupedData("src/day4/input.txt") { parsePassport(it) }
+
     println("Part 1")
-    val fieldRuleMapping0 = mapOf(
+    val fieldRuleMapping = mapOf(
             "byr" to MandatoryRule(),
             "iyr" to MandatoryRule(),
             "eyr" to MandatoryRule(),
@@ -15,10 +16,11 @@ fun main() {
             "ecl" to MandatoryRule(),
             "pid" to MandatoryRule()
     )
-    val completePassports = countValidPassports(passports, fieldRuleMapping0)
+    val completePassports = countValidPassports(passports, fieldRuleMapping)
     println(completePassports)
+
     println("Part 2")
-    val fieldRuleMapping = mapOf(
+    val fieldRuleMappingPart2 = mapOf(
             "byr" to MinMaxRule(1920, 2002),
             "iyr" to MinMaxRule(2010, 2020),
             "eyr" to MinMaxRule(2020, 2030),
@@ -27,21 +29,17 @@ fun main() {
             "ecl" to AllowedValueRule(listOf("amb", "blu", "brn", "gry", "grn", "hzl", "oth")),
             "pid" to AllowedCharsAndLengthRule("0123456789", 9)
     )
-    val validPassports = countValidPassports(passports, fieldRuleMapping)
+    val validPassports = countValidPassports(passports, fieldRuleMappingPart2)
     println(validPassports)
 }
 
-fun parseInput(): List<Passport> {
-    return TextFileParser.parseFile("src/day4/input.txt") { text ->
-        text.split("\n\n").map { passportFields ->
-            val fields = mutableMapOf<String, String>()
-            passportFields.replace("\n", " ").split(" ").forEach { field ->
-                val (key, value) = field.split(":")
-                fields[key] = value
-            }
-            Passport(fields)
-        }
+private fun parsePassport(it: List<String>): Passport {
+    val fields = mutableMapOf<String, String>()
+    it.forEach { field ->
+        val (key, value) = field.split(":")
+        fields[key] = value
     }
+    return Passport(fields)
 }
 
 fun countValidPassports(passports: List<Passport>, rules: Map<String, IRule>): Int {
