@@ -11,10 +11,8 @@ fun main() {
 
     println("Part 2")
     if (!program.run().hasCompleted()) {
-        val corruptedIndex = program.findCorruptedInstructionIndex()
-        val finalAccumulator = program.getCurrentAccumulator()
+        val finalAccumulator = program.fixMe().getCurrentAccumulator()
         println("Acc is $finalAccumulator")
-        println("Corrupted index was $corruptedIndex")
     } else {
         println("No corrupted indexes")
     }
@@ -25,29 +23,33 @@ fun parseInstruction(string: String): Instruction {
     return Instruction(type, value.toInt())
 }
 
-class Instruction(private val type: String, private val value: Int) {
-    fun getInvertedInstruction(): Instruction? {
+class Instruction(val type: String, val value: Int) {
+    var isExecuted = false
+    fun getInvertedInstruction(): Instruction {
         if (type == "jmp") {
             return Instruction("nop", value)
         }
         if (type == "nop" && value != 0) {
             return Instruction("jmp", value)
         }
-        return null
+        return Instruction(type, value)
     }
 
-    fun execute(index: Int, acc: Int): Pair<Int, Int> {
-        var newIdx = index
-        var newAcc = acc
+    fun execute(program: Program) {
         when (type) {
             "acc" -> {
-                newAcc += value
-                newIdx++
+                program.increaseAcc(value)
+                program.jump(1)
             }
-            "jmp" -> newIdx += value
-            "nop" -> newIdx++
+            "jmp" -> program.jump(value)
+            "nop" -> program.jump(1)
         }
-        return Pair(newIdx, newAcc)
+        isExecuted = true
+    }
+
+    fun resetState(): Instruction {
+        isExecuted = false
+        return this
     }
 }
 
@@ -55,10 +57,6 @@ class Program(private val instructions: List<Instruction>) {
     private var currentIndex = 0
     private var currentAcc = 0
     private var isCompleted = false
-
-    init {
-        resetProgram()
-    }
 
     fun getCurrentAccumulator(): Int {
         return currentAcc
@@ -68,50 +66,47 @@ class Program(private val instructions: List<Instruction>) {
         return isCompleted
     }
 
-    private fun executeInstruction(instruction: Instruction) {
-        val newValues = instruction.execute(currentIndex, currentAcc)
-        updateState(newValues.first, newValues.second)
-    }
-
-    private fun updateState(newIndex: Int, newAcc: Int) {
-        currentIndex = newIndex
-        currentAcc = newAcc
-    }
-
-    fun run(instructions: List<Instruction> = this.instructions): Program {
+    fun run(): Program {
         resetProgram()
 
-        val visitedIndexes = mutableSetOf<Int>()
-        while (currentIndex < instructions.size && currentIndex !in visitedIndexes && visitedIndexes.size <= instructions.size) {
-            visitedIndexes.add(currentIndex)
+        while (!instructions[currentIndex].isExecuted) {
             val instruction = instructions[currentIndex]
             val previousIndex = currentIndex
-            executeInstruction(instruction)
+            instruction.execute(this)
             if (previousIndex == instructions.size - 1) {
+                currentIndex = previousIndex
                 isCompleted = true
                 return this
             }
         }
-        isCompleted = visitedIndexes.size >= instructions.size
         return this
     }
 
-    fun findCorruptedInstructionIndex(): Int? {
-        for (instructionIndex in instructions.indices) {
-            resetProgram()
-            val newInstructions = instructions.toMutableList()
-            newInstructions[instructionIndex].getInvertedInstruction()?.also { invertedInstruction ->
-                newInstructions[instructionIndex] = invertedInstruction
-                run(newInstructions)
-                isCompleted && return instructionIndex
+    fun fixMe(): Program {
+        val indicesToBeChecked = instructions.indices.filter { instructions[it].type == "nop" || instructions[it].type == "jmp" }
+        for (instructionIndex in indicesToBeChecked) {
+            val newInstructions = instructions.map { it.resetState() }.toMutableList()
+            newInstructions[instructionIndex] = newInstructions[instructionIndex].getInvertedInstruction()
+            val program = Program(newInstructions)
+            program.run()
+            if (program.isCompleted) {
+                return program
             }
         }
-        return null
+        return this
     }
 
     private fun resetProgram() {
         currentIndex = 0
         currentAcc = 0
         isCompleted = false
+    }
+
+    fun increaseAcc(value: Int) {
+        currentAcc += value
+    }
+
+    fun jump(i: Int) {
+        currentIndex += i
     }
 }
