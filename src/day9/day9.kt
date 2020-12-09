@@ -10,7 +10,7 @@ fun main() {
 
     println("Part 2")
     if (result1 != null) {
-        println(findWithCumulation(input, result1))
+        println(findWithCumulativeList(input, result1))
         println(findBruteForce(input, result1))
     }
 }
@@ -39,40 +39,38 @@ fun naiveParsing(input: List<Long>, target: Long): Boolean {
 
 // Part 2
 
-// exploit cumulative list to pop first value and subtract it from other values until target is found in the list
-fun findWithCumulation(input: List<Long>, target: Long): Long? {
-    var cumulatedList = cumulate(input).toMutableList()
+// exploit cumulative list to pop first value and subtract it from other values until unique target is found in the list
+fun findWithCumulativeList(input: List<Long>, target: Long): Long? {
+    var cumulatedList = input.cumulate()
     var pointer = 0
 
-    while (cumulatedList.size > 0 && !(cumulatedList.contains(target) && !isValidResult(cumulatedList, target))) {
-        cumulatedList = cumulatedList.map { it - cumulatedList[0] }.toMutableList()
+    // takes into account also cases where either zero or more than one solutions are possible
+    while (cumulatedList.isNotEmpty() && cumulatedList.filter { it == target }.size != 1) {
+        cumulatedList = cumulatedList.subtractToAllElements(cumulatedList[0]).toMutableList()
         cumulatedList.removeAt(0)
         pointer++
     }
 
-    if (cumulatedList.size == 0) {
+    if (cumulatedList.isEmpty()) {
         return null
     }
 
-    val subListEnd = cumulatedList.indexOf(target)
-    val sequence = decumulate(cumulatedList.take(subListEnd))
+    val sequenceSize = cumulatedList.indexOf(target)
+    val sequence = cumulatedList.take(sequenceSize).revertCumulate()
     return sequence.min()?.plus(sequence.max() ?: 0)
 }
 
-private fun isValidResult(cumulatedList: MutableList<Long>, target: Long) =
-        decumulate(cumulatedList.take(cumulatedList.indexOf(target))).sum() == target
-
-private fun cumulate(input: List<Long>): List<Long> {
+fun List<Long>.cumulate(): List<Long> {
     var previousVal = 0L
-    return input.map {
+    return this.map {
         val newValue = it + previousVal
         previousVal += it
         newValue
     }
 }
 
-private fun decumulate(input: List<Long>): List<Long> {
-    val reversedList = input.reversed()
+fun List<Long>.revertCumulate(): List<Long> {
+    val reversedList = this.reversed()
     return reversedList.mapIndexed { index, l ->
         if (index < reversedList.size - 1) {
             l - reversedList[index + 1]
@@ -80,6 +78,10 @@ private fun decumulate(input: List<Long>): List<Long> {
             l
         }
     }
+}
+
+fun List<Long>.subtractToAllElements(value: Long): List<Long> {
+    return this.map { it - value }
 }
 
 fun findBruteForce(input: List<Long>, target: Long): Long? {
