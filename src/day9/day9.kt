@@ -10,6 +10,7 @@ fun main() {
 
     println("Part 2")
     if (result1 != null) {
+        println(findWithUntouchedCumulativeListLinear(input, result1))
         println(findWithUntouchedCumulativeList(input, result1))
         println(findWithCumulativeList(input, result1))
         println(findBruteForce(input, result1))
@@ -41,11 +42,25 @@ fun naiveParsing(input: List<Long>, target: Long): Boolean {
 // Part 2
 
 // exploit cumulative list
+fun findWithUntouchedCumulativeListLinear(input: List<Long>, target: Long): Long? {
+    val cumulatedList = input.cumulate()
+    val cumulatedSet = cumulatedList.toSet()
+    var acc = cumulatedList[0]
+    var i = 1
+    while (!cumulatedSet.contains(target + acc) && i < cumulatedList.size) {
+        acc += input[i]
+        i++
+    }
+    val endIndex = cumulatedList.indexOf(target + acc)
+    val sequence = input.subList(i, endIndex + 1)
+    return sequence.min()?.plus(sequence.max() ?: 0)
+}
+
 fun findWithUntouchedCumulativeList(input: List<Long>, target: Long): Long? {
     val cumulatedList = input.cumulate()
     var acc = cumulatedList[0]
     var i = 1
-    while (i < cumulatedList.size && cumulatedList.none { it == target + acc }) {
+    while (cumulatedList.none { it == target + acc } && i < cumulatedList.size) {
         acc += input[i]
         i++
     }
@@ -60,7 +75,7 @@ fun findWithCumulativeList(input: List<Long>, target: Long): Long? {
     var pointer = 0
 
     // takes into account also cases where either zero or more than one solutions are possible
-    while (cumulatedList.isNotEmpty() && cumulatedList.filter { it == target }.size != 1) {
+    while (cumulatedList.none { it == target } && cumulatedList.isNotEmpty()) {
         cumulatedList = cumulatedList.subtractToAllElements(cumulatedList[0]).toMutableList()
         cumulatedList.removeAt(0)
         pointer++
