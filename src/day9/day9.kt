@@ -10,6 +10,7 @@ fun main() {
 
     println("Part 2")
     if (result1 != null) {
+        println(findWithUntouchedCumulativeList(input, result1))
         println(findWithCumulativeList(input, result1))
         println(findBruteForce(input, result1))
     }
@@ -38,6 +39,20 @@ fun naiveParsing(input: List<Long>, target: Long): Boolean {
 }
 
 // Part 2
+
+// exploit cumulative list
+fun findWithUntouchedCumulativeList(input: List<Long>, target: Long): Long? {
+    val cumulatedList = input.cumulate()
+    var acc = cumulatedList[0]
+    var i = 1
+    while (i < cumulatedList.size && cumulatedList.none { it == target + acc }) {
+        acc += input[i]
+        i++
+    }
+    val endIndex = cumulatedList.indexOf(target + acc)
+    val sequence = input.subList(i, endIndex + 1)
+    return sequence.min()?.plus(sequence.max() ?: 0)
+}
 
 // exploit cumulative list to pop first value and subtract it from other values until unique target is found in the list
 fun findWithCumulativeList(input: List<Long>, target: Long): Long? {
