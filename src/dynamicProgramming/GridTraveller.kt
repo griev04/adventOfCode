@@ -3,7 +3,7 @@ package dynamicProgramming
 import java.math.BigInteger
 
 fun main() {
-    val grid = GridTraveller(100, 10)
+    val grid = GridTraveller(2, 3)
     val result = grid.countWaysToTravel()
     println(result)
 }
@@ -15,16 +15,16 @@ class GridTraveller(private val rows: Int, private val cols: Int) {
     fun countWaysToTravel(pos: Int = 0, seen: MutableMap<Int, BigInteger> = mutableMapOf()): BigInteger {
         seen[pos]?.also { return it }
         if (pos == size - 1) {
-            return BigInteger.ZERO
+            return BigInteger.ONE
         }
         var sum = BigInteger.ZERO
         // move right
         if (pos / cols < cols - 1) {
-            sum += BigInteger.ONE + countWaysToTravel(pos + 1, seen)
+            sum += countWaysToTravel(pos + 1, seen)
         }
         // move down
         if (pos / rows < rows - 1) {
-            sum += BigInteger.ONE + countWaysToTravel(pos + 1, seen)
+            sum += countWaysToTravel(pos + cols, seen)
         }
         seen[pos] = sum
         return sum
