@@ -12,6 +12,7 @@ fun main() {
     if (result1 != null) {
         println(findWithUntouchedCumulativeListLinear(input, result1))
         println(findWithUntouchedCumulativeList(input, result1))
+        println(findWithMobileWindow(input, result1))
         println(findWithCumulativeList(input, result1))
         println(findBruteForce(input, result1))
     }
@@ -66,6 +67,29 @@ fun findWithUntouchedCumulativeList(input: List<Long>, target: Long): Long? {
     }
     val endIndex = cumulatedList.indexOf(target + acc)
     val sequence = input.subList(i, endIndex + 1)
+    return sequence.min()?.plus(sequence.max() ?: 0)
+}
+
+
+// sum with mobile window
+fun findWithMobileWindow(input: List<Long>, target: Long): Long? {
+    var lower = 0
+    var upper = 1
+    var sum = input[lower] + input[upper]
+
+    while (sum != target) {
+        if (sum < target) {
+            upper++
+            sum += input[upper]
+        } else {
+            while (sum > target) {
+                sum -= input[lower]
+                lower++
+            }
+        }
+    }
+
+    val sequence = input.subList(lower, upper + 1)
     return sequence.min()?.plus(sequence.max() ?: 0)
 }
 
