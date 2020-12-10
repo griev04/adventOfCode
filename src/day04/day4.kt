@@ -1,4 +1,4 @@
-package day4
+package day04
 
 import common.TextFileParser
 import kotlin.math.roundToInt
