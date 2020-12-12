@@ -4,82 +4,83 @@ import common.TextFileParser
 import kotlin.math.*
 
 fun main() {
-    val instructions = TextFileParser.parseLines("src/day12/input.txt") { Pair(it[0], it.takeLast(it.length - 1).toInt()) }
+    val instructions = TextFileParser.parseLines("src/day12/input.txt") { Pair(it[0], it.takeLast(it.length - 1).toFloat()) }
     println("Part 1")
-    println(findDistance(instructions))
+    val result1 = NavigationSystem(instructions)
+            .navigate()
+            .getManhattanDistance()
+    println(result1)
 
     println("Part 2")
-    println(findDistance(instructions, true))
+    val result2 = NavigationSystem(instructions)
+            .setInitialDirectionForPart2(1, -10)
+            .navigate()
+            .getManhattanDistance()
+    println(result2)
 }
 
-fun findDistance(instructions: List<Pair<Char, Int>>, isPart2: Boolean = false): Int {
-    var direction = if (isPart2) {
-        Vector(1, -10)
-    } else {
-        Direction.Companion.DirectionVector.E.vector
+class NavigationSystem(private val instructions: List<Pair<Char, Float>>) {
+    private var position = Vector(0, 0)
+    private var direction = Direction.E.vector
+    private var isPart2 = false
+
+    fun setInitialDirectionForPart2(lat: Int, long: Int): NavigationSystem {
+        direction = Vector(long, lat)
+        isPart2 = true
+        return this
     }
 
-    var position = Vector(0, 0)
-
-    instructions.forEach { instruction ->
-        val (command, value) = instruction
-        when (command) {
-            'F' -> {
-                val new = Direction.getDisplacement(direction, value)
-                position += new
-            }
-            'L', 'R' -> direction = direction.rotate(value, command)
-            else -> {
-                val movingDirection = Direction.Companion.DirectionVector.valueOf(command.toString()).vector
-                val new = Direction.getDisplacement(movingDirection, value)
-                if (isPart2) {
-                    direction += new
-                } else {
-                    position += new
+    fun navigate(): NavigationSystem {
+        instructions.forEach { instruction ->
+            val (command, value) = instruction
+            when (command) {
+                'F' -> position += direction * value
+                'L' -> direction = direction.rotate(-value)
+                'R' -> direction = direction.rotate(value)
+                else -> {
+                    val movingDirection = Direction.valueOf(command.toString()).vector
+                    if (isPart2) {
+                        direction += movingDirection * value
+                    } else {
+                        position += movingDirection * value
+                    }
                 }
             }
         }
+        return this
     }
 
-    return position.getManhattanDistance()
+    fun getManhattanDistance(): Float {
+        return position.getManhattanDistance()
+    }
+
+    private enum class Direction(val vector: Vector) {
+        N(Vector(0, 1)),
+        E(Vector(-1, 0)),
+        S(Vector(0, -1)),
+        W(Vector(1, 0))
+    }
 }
 
-class Vector(private val lat: Int, private val long: Int) {
+class Vector(private var x: Float, private var y: Float) {
+    constructor(x: Int, y: Int) : this(x.toFloat(), y.toFloat())
+
     operator fun plus(other: Vector): Vector =
-            Vector(this.lat + other.lat, this.long + other.long)
+            Vector(this.x + other.x, this.y + other.y)
 
-    operator fun times(other: Int): Vector =
-            Vector(other * (this.lat), other * (this.long))
+    operator fun times(other: Float): Vector =
+            Vector(other * (this.x), other * (this.y))
 
-    fun getManhattanDistance(): Int = abs(this.lat) + abs(this.long)
+    fun getManhattanDistance(): Float = abs(this.x) + abs(this.y)
 
-    fun rotate(degrees: Int, rotationDirection: Char): Vector {
-        val signedDegrees = if (rotationDirection == 'L') {
-            -degrees
-        } else {
-            degrees
-        } * PI / 180
-        val newLong = round(this.long * cos(signedDegrees) - this.lat * sin(signedDegrees)).toInt()
-        val newLat = round(this.long * sin(signedDegrees) + this.lat * cos(signedDegrees)).toInt()
-        return Vector(newLat, newLong)
+    fun rotate(degrees: Float): Vector {
+        val rad = degrees * PI / 180
+        val newX = (this.x * cos(rad) - this.y * sin(rad)).toFloat()
+        val newY = (this.x * sin(rad) + this.y * cos(rad)).toFloat()
+        return Vector(newX, newY)
     }
 
     override fun toString(): String {
-        return "lat: $lat, long: $long"
-    }
-}
-
-class Direction {
-    companion object {
-        enum class DirectionVector(val vector: Vector) {
-            N(Vector(1, 0)),
-            E(Vector(0, -1)),
-            S(Vector(-1, 0)),
-            W(Vector(0, 1))
-        }
-
-        fun getDisplacement(vector: Vector, value: Int): Vector {
-            return vector * value
-        }
+        return "($x; $y)"
     }
 }
