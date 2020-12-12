@@ -1,7 +1,7 @@
 package day12
 
 import common.TextFileParser
-import kotlin.math.abs
+import kotlin.math.*
 
 fun main() {
     val instructions = TextFileParser.parseLines("src/day12/input.txt") { Pair(it[0], it.takeLast(it.length - 1).toInt()) }
@@ -13,63 +13,73 @@ fun main() {
 }
 
 fun findDistance(instructions: List<Pair<Char, Int>>, isPart2: Boolean = false): Int {
-    var currentVector = if (isPart2) {
-        Pair(1, -10)
+    var direction = if (isPart2) {
+        Vector(1, -10)
     } else {
         Direction.Companion.DirectionVector.E.vector
     }
-    var dLat = 0; var dLong = 0
+
+    var position = Vector(0, 0)
 
     instructions.forEach { instruction ->
         val (command, value) = instruction
         when (command) {
             'F' -> {
-                val (lat, long) = Direction.getDisplacement(currentVector, value)
-                dLat += lat; dLong += long
+                val new = Direction.getDisplacement(direction, value)
+                position += new
             }
-            'L', 'R' -> currentVector = Direction.turn(currentVector, command, value)
+            'L', 'R' -> direction = direction.rotate(value, command)
             else -> {
-                val direction = Direction.Companion.DirectionVector.valueOf(command.toString()).vector
-                val (lat, long) = Direction.getDisplacement(direction, value)
+                val movingDirection = Direction.Companion.DirectionVector.valueOf(command.toString()).vector
+                val new = Direction.getDisplacement(movingDirection, value)
                 if (isPart2) {
-                    currentVector = Pair(currentVector.first + lat, currentVector.second + long)
+                    direction += new
                 } else {
-                    dLat += lat; dLong += long
+                    position += new
                 }
             }
         }
     }
 
-    return abs(dLat) + abs(dLong)
+    return position.getManhattanDistance()
+}
+
+class Vector(private val lat: Int, private val long: Int) {
+    operator fun plus(other: Vector): Vector =
+            Vector(this.lat + other.lat, this.long + other.long)
+
+    operator fun times(other: Int): Vector =
+            Vector(other * (this.lat), other * (this.long))
+
+    fun getManhattanDistance(): Int = abs(this.lat) + abs(this.long)
+
+    fun rotate(degrees: Int, rotationDirection: Char): Vector {
+        val signedDegrees = if (rotationDirection == 'L') {
+            -degrees
+        } else {
+            degrees
+        } * PI / 180
+        val newLong = round(this.long * cos(signedDegrees) - this.lat * sin(signedDegrees)).toInt()
+        val newLat = round(this.long * sin(signedDegrees) + this.lat * cos(signedDegrees)).toInt()
+        return Vector(newLat, newLong)
+    }
+
+    override fun toString(): String {
+        return "lat: $lat, long: $long"
+    }
 }
 
 class Direction {
     companion object {
-        enum class DirectionVector(val vector: Pair<Int, Int>) {
-            N(Pair(1, 0)),
-            E(Pair(0, -1)),
-            S(Pair(-1, 0)),
-            W(Pair(0, 1))
+        enum class DirectionVector(val vector: Vector) {
+            N(Vector(1, 0)),
+            E(Vector(0, -1)),
+            S(Vector(-1, 0)),
+            W(Vector(0, 1))
         }
 
-        fun getDisplacement(vector: Pair<Int, Int>, value: Int): Pair<Int, Int> {
-            return Pair(value * (vector.first), value * (vector.second))
-        }
-
-        fun turn(facingDirection: Pair<Int, Int>, turningDirection: Char, degrees: Int): Pair<Int, Int> {
-            val turns = (degrees % 360) / 90
-            if (turns == 0) return facingDirection
-
-            var newDirection = facingDirection
-
-            for (t in 1..turns) {
-                newDirection = if (turningDirection == 'R') {
-                    Pair(newDirection.second, -newDirection.first)
-                } else {
-                    Pair(-newDirection.second, newDirection.first)
-                }
-            }
-            return newDirection
+        fun getDisplacement(vector: Vector, value: Int): Vector {
+            return vector * value
         }
     }
 }
