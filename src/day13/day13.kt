@@ -4,81 +4,85 @@ import common.TextFileParser
 import kotlin.math.abs
 
 fun main() {
-    val data = TextFileParser.parseFile("src/day13/input.txt") { parseData(it) }
-    val (departure, busIds) = data
+    val schedule = TextFileParser.parseFile("src/day13/input.txt") { parseData(it) }
+
     println("Part 1")
-    val result1 = findFirstDepartingBus(departure, busIds)
+    val result1 = schedule.findFirstDepartingBus()
     println(result1)
 
-    println("Part 2")
-    val data2 = TextFileParser.parseFile("src/day13/input.txt") { parseData2(it) }
-//    val result2 = resolvePart2BruteForce(data2)
-//    println(result2)
-
-    val res = data2.toMutableList()
-    outCycle = res[0].first
-    while (res.size > 1) {
-        val ab = findBetween2(res[0], res[1])
-        println(ab)
-        res.add(0, ab)
-        res.removeAt(1)
-        res.removeAt(1)
-    }
-    val result2 = res[0].first
+    println("Part 2 - UGLY AF")
+    val result2 = schedule.findSubsequentBusTimestamp()
     println(result2)
 }
 
-private fun resolvePart2BruteForce(data2: List<Pair<Long, Int>>): Long {
-    var t = data2[0].first
-    outerloop@ while (true) {
-        loop@ for (step in 1 until data2.size) {
-            val (value, stepInList) = data2[step]
-            if ((t + stepInList) % value != 0L) {
-                break@loop
+class ShuttleSchedule(private val departureTime: Long, private val shuttles: List<Shuttle>) {
+    private var subsequentShuttlesCycle = 0L
+
+    fun findSubsequentBusTimestamp(): Long {
+        val res = shuttles.toMutableList()
+        subsequentShuttlesCycle = res[0].id
+        while (res.size > 1) {
+            val timestamp = findTimestampOfTwoShuttles(res[0], res[1])
+            res.add(0, timestamp)
+            res.removeAt(1)
+            res.removeAt(1)
+        }
+        return res[0].id
+    }
+
+    private fun findTimestampOfTwoShuttles(a: Shuttle, b: Shuttle): Shuttle {
+        val offset = abs(a.offset - b.offset)
+        var currentTimestamp = a.id
+        while ((currentTimestamp + offset) % b.id != 0L ) {
+            currentTimestamp += subsequentShuttlesCycle
+        }
+        subsequentShuttlesCycle *= b.id
+        return Shuttle(currentTimestamp, 0)
+    }
+
+    fun findSubsequentBusTimestampBruteForce(): Long {
+        var timestamp = shuttles[0].id
+        outerloop@ while (true) {
+            loop@ for (step in 1 until shuttles.size) {
+                val id = shuttles[step].id
+                val offset = shuttles[step].offset
+                if ((timestamp + offset) % id != 0L) {
+                    break@loop
+                }
+                if (step == shuttles.size - 1) {
+                    break@outerloop
+                }
             }
-            if (step == data2.size - 1) {
-                break@outerloop
+            timestamp += shuttles[0].id
+        }
+        return timestamp
+    }
+
+    fun findFirstDepartingBus(): Long {
+        var result = 0L
+        var min = departureTime
+        shuttles.forEach {
+            val nextDeparture = it.id - (departureTime % it.id)
+            if (nextDeparture < min) {
+                min = nextDeparture
+                result = it.id * nextDeparture
             }
         }
-        t += data2[0].first
-    }
-    return t
-}
-
-var outCycle = 0L
-
-fun findBetween2(a: Pair<Long, Int>, b: Pair<Long, Int>): Pair<Long, Int> {
-    val offset = abs(a.second - b.second)
-    var curr = a.first
-    while (true) {
-        if ((curr + offset) % b.first == 0L ) {
-            outCycle*=b.first
-            println(Pair(curr, 0))
-            return Pair(curr, 0)
-        }
-        curr += outCycle
+        return result
     }
 }
 
-private fun findFirstDepartingBus(departure: Int, busIds: List<Int>): Int {
-    var result = 0
-    var min = departure
-    busIds.forEach {
-        val nextDeparture = it - (departure % it)
-        if (nextDeparture < min) {
-            min = nextDeparture
-            result = it * nextDeparture
-        }
-    }
-    return result
-}
-
-fun parseData(text: String): Pair<Int, List<Int>> {
+fun parseData(text: String): ShuttleSchedule {
     val (timestamp, busIds) = text.split("\n")
-    val validBusIds = busIds.split(",").filter { it != "x" }.map { it.toInt() }
-    return Pair(timestamp.toInt(), validBusIds)
+    val validBusIds = parseBusData(busIds)
+    return ShuttleSchedule(timestamp.toLong(), validBusIds)
 }
 
-fun parseData2(text: String): List<Pair<Long, Int>> {
-    return text.split("\n")[1].replace("x", "0").split(",").mapIndexed { index, s -> Pair(s.toLong(), index) }.filter { it.first != 0L }
+fun parseBusData(text: String): List<Shuttle> {
+    return text.replace("x", "0")
+            .split(",")
+            .mapIndexed { index, s -> Shuttle(s.toLong(), index) }
+            .filter { it.id != 0L }
 }
+
+class Shuttle(val id: Long, val offset: Int)
