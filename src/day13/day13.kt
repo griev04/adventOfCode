@@ -1,6 +1,7 @@
 package day13
 
 import common.TextFileParser
+import kotlin.math.abs
 
 fun main() {
     val data = TextFileParser.parseFile("src/day13/input.txt") { parseData(it) }
@@ -11,7 +12,19 @@ fun main() {
 
     println("Part 2")
     val data2 = TextFileParser.parseFile("src/day13/input.txt") { parseData2(it) }
-    val result2 = resolvePart2BruteForce(data2)
+//    val result2 = resolvePart2BruteForce(data2)
+//    println(result2)
+
+    val res = data2.toMutableList()
+    outCycle = res[0].first
+    while (res.size > 1) {
+        val ab = findBetween2(res[0], res[1])
+        println(ab)
+        res.add(0, ab)
+        res.removeAt(1)
+        res.removeAt(1)
+    }
+    val result2 = res[0].first
     println(result2)
 }
 
@@ -32,18 +45,19 @@ private fun resolvePart2BruteForce(data2: List<Pair<Long, Int>>): Long {
     return t
 }
 
-fun findBetween2(a: Pair<Long, Int>, b: Pair<Long, Int>): Long {
-    val cycle = a.first * b.first
-    val bigger = listOf(a, b).maxBy { it.first }
-    val smaller = listOf(a, b).minBy { it.first }
-    var curr = bigger!!.first
-    while (curr < cycle) {
-        if ((curr - (bigger.second - smaller!!.second )) % smaller.first == 0L) {
-            return curr
+var outCycle = 0L
+
+fun findBetween2(a: Pair<Long, Int>, b: Pair<Long, Int>): Pair<Long, Int> {
+    val offset = abs(a.second - b.second)
+    var curr = a.first
+    while (true) {
+        if ((curr + offset) % b.first == 0L ) {
+            outCycle*=b.first
+            println(Pair(curr, 0))
+            return Pair(curr, 0)
         }
-        curr += bigger.first
+        curr += outCycle
     }
-    return -1L
 }
 
 private fun findFirstDepartingBus(departure: Int, busIds: List<Int>): Int {
