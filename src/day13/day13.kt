@@ -16,28 +16,27 @@ fun main() {
 }
 
 class ShuttleSchedule(private val departureTime: Long, private val shuttles: List<Shuttle>) {
-    private var subsequentShuttlesCycle = 0L
 
     fun findSubsequentBusTimestamp(): Long {
         val res = shuttles.toMutableList()
-        subsequentShuttlesCycle = res[0].id
-        while (res.size > 1) {
-            val timestamp = findTimestampOfTwoShuttles(res[0], res[1])
-            res.add(0, timestamp)
-            res.removeAt(1)
-            res.removeAt(1)
-        }
-        return res[0].id
+        val firstShuttle = res.removeAt(0)
+        val equivalentShuttle = findShuttlesEquivalentTimestamp(firstShuttle, res)
+
+        return equivalentShuttle.id
     }
 
-    private fun findTimestampOfTwoShuttles(a: Shuttle, b: Shuttle): Shuttle {
-        val offset = abs(a.offset - b.offset)
-        var currentTimestamp = a.id
-        while ((currentTimestamp + offset) % b.id != 0L ) {
-            currentTimestamp += subsequentShuttlesCycle
+    private fun findShuttlesEquivalentTimestamp(shuttleOne: Shuttle, others: MutableList<Shuttle>, equivalentCycle: Long = shuttleOne.id): Shuttle {
+        if (others.size == 0) return shuttleOne
+
+        val shuttleTwo = others.removeAt(0)
+        var currentTimestamp = shuttleOne.id
+        val offset = abs(shuttleOne.offset - shuttleTwo.offset)
+        while ((currentTimestamp + offset) % shuttleTwo.id != 0L ) {
+            currentTimestamp += equivalentCycle
         }
-        subsequentShuttlesCycle *= b.id
-        return Shuttle(currentTimestamp, 0)
+
+        val equivalentShuttle = Shuttle(currentTimestamp, shuttleOne.offset)
+        return findShuttlesEquivalentTimestamp(equivalentShuttle, others, equivalentCycle * shuttleTwo.id)
     }
 
     fun findSubsequentBusTimestampBruteForce(): Long {
