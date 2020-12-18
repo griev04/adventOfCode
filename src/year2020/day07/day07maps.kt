@@ -13,19 +13,19 @@ fun main() {
 
     println("Part 2")
     val directMap = getDirectMap(input)
-    val result2 = findInnerBags(Bag("shiny gold"), directMap) - 1
+    val result2 = findInnerBags(Sack("shiny gold"), directMap) - 1
     println(result2)
 }
 
-private fun parseBags(line: String): Bag {
+private fun parseBags(line: String): Sack {
     val (parent, childrenString) = line.replace("bags", "bag").replace(" bag", "").split(" contain ")
     val children = childrenString.replace(".", "").split(", ").filter { it != "no other" }
-    return Bag(parent, inner = children.map { Bag(it.takeLast(it.length - 2), it.take(1).toInt()) })
+    return Sack(parent, inner = children.map { Sack(it.takeLast(it.length - 2), it.take(1).toInt()) })
 }
 
-private fun getDirectMap(bags: List<Bag>): MutableMap<String, MutableList<Bag>> {
-    val directMap = mutableMapOf<String, MutableList<Bag>>()
-    bags.forEach { bag ->
+private fun getDirectMap(sacks: List<Sack>): MutableMap<String, MutableList<Sack>> {
+    val directMap = mutableMapOf<String, MutableList<Sack>>()
+    sacks.forEach { bag ->
         val parentColor = bag.color
         val children = bag.inner
         if (directMap[parentColor] != null) {
@@ -37,9 +37,9 @@ private fun getDirectMap(bags: List<Bag>): MutableMap<String, MutableList<Bag>> 
     return directMap
 }
 
-private fun getInverseMap(bags: List<Bag>): MutableMap<String, MutableList<String>> {
+private fun getInverseMap(sacks: List<Sack>): MutableMap<String, MutableList<String>> {
     val inverseMap = mutableMapOf<String, MutableList<String>>()
-    bags.forEach { bag ->
+    sacks.forEach { bag ->
         val parentColor = bag.color
         val children = bag.inner
 
@@ -63,14 +63,14 @@ fun findContainers(bag: String, map: Map<String, List<String>>, result: MutableL
     return result.distinct().toMutableList()
 }
 
-fun findInnerBags(bag: Bag, map: Map<String, List<Bag>>): Int {
-    val children = map[bag.color] ?: return bag.quantity
-    if (children.isEmpty()) return bag.quantity
-    var result = bag.quantity
+fun findInnerBags(sack: Sack, map: Map<String, List<Sack>>): Int {
+    val children = map[sack.color] ?: return sack.quantity
+    if (children.isEmpty()) return sack.quantity
+    var result = sack.quantity
     children.forEach { child ->
-        result += bag.quantity * findInnerBags(child, map)
+        result += sack.quantity * findInnerBags(child, map)
     }
     return result
 }
 
-class Bag(val color: String, val quantity: Int = 1, val inner: List<Bag> = emptyList())
+class Sack(val color: String, val quantity: Int = 1, val inner: List<Sack> = emptyList())
