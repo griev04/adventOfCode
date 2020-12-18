@@ -3,7 +3,7 @@ package year2020.day07
 import common.TextFileParser
 
 fun main() {
-    val graph = parseGraph("src/day7/input.txt")
+    val graph = parseGraph("src/year2020/day07/input.txt")
     val target = "shiny gold"
     println("Part 1")
     val numberOfBagsTypesContainingTarget = graph.findAncestorsCount(target)

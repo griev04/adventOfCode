@@ -3,7 +3,7 @@ package year2020.day07
 import common.TextFileParser
 
 fun main() {
-    val input = TextFileParser.parseLines("src/day7/input.txt") { line -> parseBags(line) }
+    val input = TextFileParser.parseLines("src/year2020/day07/input.txt") { line -> parseBags(line) }
 
     println("Part 1")
     val inverseMap = getInverseMap(input)

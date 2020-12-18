@@ -2,25 +2,23 @@ package year2020.day01
 
 import common.TextFileParser
 
-lateinit var expenses: List<Int>
-
 fun main() {
-    expenses = TextFileParser.parseLines("src/day1/input.txt") { line ->
+    val expenses = TextFileParser.parseLines("src/year2020/day01/input.txt") { line ->
         line.toInt()
     }
     val total = 2020
     println("Part 1")
-    println(processCoupleNaive(total))
-    println(processCouple(total))
+    println(processCoupleNaive(expenses, total))
+    println(processCouple(expenses, total))
     println("Part 2")
-    println(processTripleNaive(total))
-    println(processTriple(total))
-    println(processTripleRecursive(total))
+    println(processTripleNaive(expenses, total))
+    println(processTriple(expenses, total))
+    println(processTripleRecursive(expenses, total))
 }
 
 // PART 1
 
-fun processCoupleNaive(total: Int): Int {
+fun processCoupleNaive(expenses: List<Int>, total: Int): Int {
     var result = 0
     expenses.forEach { expense ->
         val difference = total - expense
@@ -32,7 +30,7 @@ fun processCoupleNaive(total: Int): Int {
     return result
 }
 
-fun processCouple(total: Int): Int? {
+fun processCouple(expenses: List<Int>, total: Int): Int? {
     val expenseComplements = mutableMapOf<Int, Int>()
     expenses.forEach { expense ->
         val complement = total - expense
@@ -46,7 +44,7 @@ fun processCouple(total: Int): Int? {
 
 // PART 2
 
-fun processTripleNaive(total: Int): Int {
+fun processTripleNaive(expenses: List<Int>, total: Int): Int {
     expenses.forEach { expense1 ->
         expenses.forEach { expense2 ->
             expenses.forEach { expense3 ->
@@ -60,10 +58,10 @@ fun processTripleNaive(total: Int): Int {
 }
 
 // Make use of previous method processCouple
-fun processTriple(total: Int): Int? {
+fun processTriple(expenses: List<Int>, total: Int): Int? {
     expenses.forEach { expense ->
         val difference = total - expense
-        val innerExpense = processCouple(difference)
+        val innerExpense = processCouple(expenses, difference)
         if (innerExpense != null) {
             return expense * innerExpense
         }
@@ -71,7 +69,7 @@ fun processTriple(total: Int): Int? {
     return null
 }
 
-fun processTripleRecursive(total: Int, depth: Int = 0): Int? {
+fun processTripleRecursive(expenses: List<Int>, total: Int, depth: Int = 0): Int? {
     expenses.forEach { expense ->
         val difference = total - expense
         // exit condition: target reached in 2 nested levels -> 3 numbers in total
@@ -79,7 +77,7 @@ fun processTripleRecursive(total: Int, depth: Int = 0): Int? {
             return expense
         }
         if (difference > 0) {
-            val innerExpense = processTripleRecursive(difference, depth + 1)
+            val innerExpense = processTripleRecursive(expenses, difference, depth + 1)
             if (innerExpense != null) {
                 return expense * innerExpense
             }

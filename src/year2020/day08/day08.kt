@@ -3,7 +3,7 @@ package year2020.day08
 import common.TextFileParser
 
 fun main() {
-    val instructions = TextFileParser.parseLines("src/day8/input.txt") { parseInstruction(it) }
+    val instructions = TextFileParser.parseLines("src/year2020/day08/input.txt") { parseInstruction(it) }
     val program = Program(instructions)
     println("Part 1")
     val currentAccumulator = program.run().getCurrentAccumulator()

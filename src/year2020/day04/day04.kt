@@ -4,18 +4,10 @@ import common.TextFileParser
 import kotlin.math.roundToInt
 
 fun main() {
-    val passports = TextFileParser.parseGroupedData("src/day4/input.txt") { parsePassport(it) }
+    val passports = TextFileParser.parseGroupedData("src/year2020/day04/input.txt") { parsePassport(it) }
 
     println("Part 1")
-    val fieldRuleMapping = mapOf(
-            "byr" to MandatoryRule(),
-            "iyr" to MandatoryRule(),
-            "eyr" to MandatoryRule(),
-            "hgt" to MandatoryRule(),
-            "hcl" to MandatoryRule(),
-            "ecl" to MandatoryRule(),
-            "pid" to MandatoryRule()
-    )
+    val fieldRuleMapping = listOf("byr", "iyr", "eyr", "hgt", "hcl", "ecl" ,"pid").map { it to MandatoryRule() }.toMap()
     val completePassports = countValidPassports(passports, fieldRuleMapping)
     println(completePassports)
 

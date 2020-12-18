@@ -3,7 +3,7 @@ package year2020.day09
 import common.TextFileParser
 
 fun main() {
-    val input = TextFileParser.parseLines("src/day9/input.txt") { it.toLong() }
+    val input = TextFileParser.parseLines("src/year2020/day09/input.txt") { it.toLong() }
     println("Part 1")
     val result1 = findFirstNumber(input)
     println(result1)

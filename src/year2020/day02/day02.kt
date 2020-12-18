@@ -3,21 +3,32 @@ package year2020.day02
 import common.TextFileParser
 
 fun main() {
-    val credentials = TextFileParser.parseLines("src/day2/input.txt") { line ->
-        parseCredential(line) { character, firstDigit, secondDigit ->
-            Policy(character, firstDigit, secondDigit)
-        }
-    }
     println("Part 1")
-    val validCredentials = credentials.count { it.isValid() }
-    println(validCredentials)
+    val result = countValidCredentials("src/year2020/day02/input.txt")
+    println(result)
+
     println("Part 2")
-    val credentials2 = TextFileParser.parseLines("src/day2/input.txt") { line -> parseCredential(line) { character, firstDigit, secondDigit -> PolicyPart2(character, firstDigit, secondDigit) } }
-    val validCredentials2 = credentials2.count { it.isValid() }
-    println(validCredentials2)
+    val result2 = countValidCredentials("src/year2020/day02/input.txt", true)
+    println(result2)
 }
 
-fun parseCredential(record: String, policyFactory: (character: Char, firstDigit: Int, secondDigit: Int) -> IPolicy): Credential {
+private fun countValidCredentials(fileName: String, isSecondPart: Boolean = false): Int {
+    val credentials = parseCredentialsFromFile(fileName, isSecondPart)
+    return credentials.count { it.isValid() }
+}
+
+private fun parseCredentialsFromFile(fileName: String, isSecondPart: Boolean) =
+        TextFileParser.parseLines(fileName) { line ->
+            parseCredential(line) { character, firstDigit, secondDigit ->
+                if (isSecondPart) {
+                    PolicyPart2(character, firstDigit, secondDigit)
+                } else {
+                    Policy(character, firstDigit, secondDigit)
+                }
+            }
+        }
+
+private fun parseCredential(record: String, policyFactory: (character: Char, firstDigit: Int, secondDigit: Int) -> IPolicy): Credential {
     val recordDetails = record.split(" ")
     val (occurrencesData, characterData, password) = recordDetails
     val (firstDigit, secondDigit) = occurrencesData.split("-").map { it.toInt() }

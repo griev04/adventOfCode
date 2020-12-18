@@ -3,7 +3,7 @@ package year2020.day06
 import common.TextFileParser
 
 fun main() {
-    val groups = TextFileParser.parseGroupedData("src/day6/input.txt") { parseGroup(it) }
+    val groups = TextFileParser.parseGroupedData("src/year2020/day06/input.txt") { parseGroup(it) }
 
     println("Part 1")
     val totalUniqueGroupAnswers = getCountOfUniqueAnswersPerGroup(groups)

@@ -4,7 +4,7 @@ import common.TextFileParser
 import kotlin.math.pow
 
 fun main() {
-    val seats = TextFileParser.parseLines("src/day5/input.txt") { parseSeat(it) }
+    val seats = TextFileParser.parseLines("src/year2020/day05/input.txt") { parseSeat(it) }
 
     println("Part 1")
     val maxSeatId = seats.maxBy { it.seatId }?.seatId
