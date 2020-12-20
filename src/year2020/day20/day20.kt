@@ -8,7 +8,7 @@ fun main() {
     val res1 = puzzle.match().getCornerTiles()
     println(res1)
     puzzle.solvePuzzle()
-    puzzle.findMonsters()
+    println(puzzle.calcWaterRoughness())
 }
 
 class Puzzle(private val tiles: List<Tile>) {
@@ -32,11 +32,11 @@ class Puzzle(private val tiles: List<Tile>) {
         return this
     }
 
-    fun findMonsters() {
+    fun calcWaterRoughness(): Int {
         tiles.forEach { it.trimBorders() }
         val result = combinePieces()
-        println(result)
-
+        val newTile = Tile(-1, result)
+        return -1
     }
 
     fun getCornerTiles(): Long {
@@ -44,21 +44,17 @@ class Puzzle(private val tiles: List<Tile>) {
     }
 
     private fun initializeFirstTile(): Tile {
-//        val firstCorner = tiles.first { it.isCorner }
-//        firstCorner.setAsTopLeftCorner()
-        val firstCorner = tiles.find { it.number == 1951 }!!
-        firstCorner.flipHorizontally()
-        firstCorner.isSolved = true
-        firstCorner.rotate(2)
+        val firstCorner = tiles.first { it.isCorner }
+        firstCorner.setAsTopLeftCorner()
         return firstCorner
     }
 
-    private fun combinePieces(): String {
+    private fun combinePieces(): List<String> {
         var count = 0
         val result = mutableListOf<String>()
         while (grid.filterKeys { it.first == count }.isNotEmpty()) {
             val positions = grid.filterKeys { it.first == count }.keys.sortedBy { it.second }
-            var lines = grid[positions[0]]!!.trimmedValues.toMutableList()
+            val lines = grid[positions[0]]!!.trimmedValues.toMutableList()
 
             for (tile in 1 until positions.size) {
                 val values = grid[positions[tile]]!!.trimmedValues
@@ -70,21 +66,18 @@ class Puzzle(private val tiles: List<Tile>) {
 
             count++
         }
-        return result.joinToString("\n")
+        return result
     }
 
     fun solvePuzzle() {
         // hp: first tile is fixed -> change others
         val firstTile = initializeFirstTile()
         solveTile(firstTile)
-        println("Solved tiles: ${tiles.filter { it.isSolved }.count()}")
     }
 
     private fun solveTile(currentTile: Tile, position: Pair<Int, Int> = Pair(0, 0)) {
         grid[position] = currentTile
         val adjacentTiles = currentTile.matches
-
-//        println(currentTile.number)
 
         if (adjacentTiles.filter { !it.key.isSolved }.isEmpty()) {
             return
@@ -100,7 +93,6 @@ class Puzzle(private val tiles: List<Tile>) {
                 targetTile.moveBorderToLocation(targetValue, targetLocation)
                 val newPosition = Pair(position.first + currentLocation.offset.first, position.second + currentLocation.offset.second)
                 solveTile(targetTile, newPosition)
-
             }
         }
     }
@@ -198,11 +190,6 @@ class Tile(val number: Int, var values: List<String>) {
 
     fun flipVertically() {
         values = values.reversed()
-    }
-
-    fun findMatchingPosition(value: String, othersPosition: String) {
-        val borders = getBordersMap()
-        val matching = borders.filterValues { it == value }.keys.first()
     }
 
     fun addMatches(matches: Map<Tile, String>) {
