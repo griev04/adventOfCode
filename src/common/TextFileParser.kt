@@ -16,7 +16,7 @@ class TextFileParser {
         fun <T> parseGroupedData(fileName: String, groupSeparator: String = "\n\n", transform: (List<String>) -> T): List<T> {
             val text = File(fileName).readText()
             return text.split(groupSeparator).map { group ->
-                val groupValues = group.replace("\n", " ").split(" ")
+                val groupValues = group.replace("\n", " ").split(" ").filter { it.isNotEmpty() }
                 transform(groupValues)
             }
         }
