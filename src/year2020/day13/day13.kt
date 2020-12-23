@@ -4,7 +4,7 @@ import common.TextFileParser
 import kotlin.math.abs
 
 fun main() {
-    val schedule = TextFileParser.parseFile("src/year2020.day13/input.txt") { parseData(it) }
+    val schedule = TextFileParser.parseFile("src/year2020/day13/input.txt") { parseData(it) }
 
     println("Part 1")
     val result1 = schedule.findFirstDepartingBus()

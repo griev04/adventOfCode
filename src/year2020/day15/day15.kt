@@ -3,10 +3,15 @@ package year2020.day15
 import common.TextFileParser
 
 fun main() {
-    val sequence = TextFileParser.parseFile("src/year2020.day15/input.txt") { parse(it) }
+    val sequence = TextFileParser.parseFile("src/year2020/day15/input.txt") { parse(it) }
 
-    val res1 = playMemoryGame(30000000, sequence)
+    println("Part 1")
+    val res1 = playMemoryGame(2020, sequence)
     println(res1)
+
+    println("Part 2")
+    val res2 = playMemoryGame(30000000, sequence)
+    println(res2)
 }
 
 fun playMemoryGame(turns: Int, seed: List<Int>): Int {

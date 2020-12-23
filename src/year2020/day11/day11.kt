@@ -3,7 +3,7 @@ package year2020.day11
 import common.TextFileParser
 
 fun main() {
-    var parsedGrid = TextFileParser.parseLines("src/year2020.day11/input.txt") { line -> line.map { Spot(it) } }
+    var parsedGrid = TextFileParser.parseLines("src/year2020/day11/input.txt") { line -> line.map { Spot(it) } }
 
     println("Part 1")
     val map1 = SeatMap(parsedGrid)
@@ -12,7 +12,7 @@ fun main() {
 
     println("Part 2")
     // reload data from disk
-    parsedGrid = TextFileParser.parseLines("src/year2020.day11/input.txt") { line -> line.map { Spot(it) } }
+    parsedGrid = TextFileParser.parseLines("src/year2020/day11/input.txt") { line -> line.map { Spot(it) } }
     val map2 = SeatMap(parsedGrid)
     val res2 = map2.run(SeatMap.RULE_PART_2)
     println(res2)

@@ -4,7 +4,7 @@ import common.TextFileParser
 import kotlin.math.pow
 
 fun main() {
-    val instructions = TextFileParser.parseLines("src/year2020.day14/input.txt") { Program.parseInstruction(it) }
+    val instructions = TextFileParser.parseLines("src/year2020/day14/input.txt") { Program.parseInstruction(it) }
     println("Part 1")
     val program = Program()
     val res = program.execute(instructions).getSumOfNumbersInMemory()

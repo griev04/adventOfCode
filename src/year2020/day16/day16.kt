@@ -3,7 +3,7 @@ package year2020.day16
 import common.TextFileParser
 
 fun main() {
-    val ticketValidator = createTicketValidator("src/year2020.day16/input.txt")
+    val ticketValidator = createTicketValidator("src/year2020/day16/input.txt")
     println("Part 1")
     val errorRate = ticketValidator.getErrorRate()
     println(errorRate)

@@ -3,7 +3,7 @@ package year2020.day10
 import common.TextFileParser
 
 fun main() {
-    val data = TextFileParser.parseLines("src/year2020.day10/input.txt") { it.toInt() }
+    val data = TextFileParser.parseLines("src/year2020/day10/input.txt") { it.toInt() }
     println("Part 1")
     println(findJoltDifferencesProduct(data))
     println(findJoltDifferencesProductWithMap(data))
