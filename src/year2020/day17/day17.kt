@@ -4,107 +4,61 @@ import common.TextFileParser
 
 fun main() {
     val referenceSystem = parseInitialConfig("src/year2020/day17/input.txt")
+
     println("Part 1")
-    val energySource = EnergySource(referenceSystem)
-    val result = energySource.runCycles(6).getActiveCubesCount()
-    println(result)
+    val keepActiveCondition = { adjacent: Int -> adjacent == 2 || adjacent == 3 }
+    val activateCondition = { adjacent: Int -> adjacent == 3 }
+    val gameOfLife = GameOfLife(referenceSystem, keepActiveCondition, activateCondition)
+    gameOfLife.skipSteps(6)
+    val res17 = gameOfLife.getActiveElementsCount()
+    println(res17)
+
     println("Part 2")
     val newReferenceSystem = parseInitialConfig("src/year2020/day17/input.txt", 4)
-    val energySource2 = EnergySource(newReferenceSystem)
-    val result2 = energySource2.runCycles(6).getActiveCubesCount()
-    println(result2)
+    val gameOfLife2 = GameOfLife(newReferenceSystem, keepActiveCondition, activateCondition)
+    gameOfLife2.skipSteps(6)
+    val res2 = gameOfLife2.getActiveElementsCount()
+    println(res2)
 }
 
-fun parseInitialConfig(fileName: String, dimensions: Int = 3): ReferenceSystem {
-    val data = TextFileParser.parseLines(fileName) { it }
-    val activeCubes = mutableListOf<Coordinate>()
-    data.forEachIndexed { rowIndex, row ->
-        row.forEachIndexed { colIndex, cube ->
-            if (cube == '#') {
-                activeCubes.add(Coordinate(listOf(rowIndex, colIndex)))
+class CartesianReferenceSystem(coordinates: List<Coordinate>, private var dimensions: Int = 2) : AReferenceSystem() {
+    override val coordinates: List<Coordinate> = initCoordinates(coordinates)
+    override var directions: List<Coordinate> = computeSurroundingRelativePositions()
+
+    private fun initCoordinates(coordinates: List<Coordinate>): List<Coordinate> {
+        return coordinates.map {
+            val new = it.values.toMutableList()
+            while (new.size < dimensions) {
+                new.add(0)
             }
-        }
-    }
-    return ReferenceSystem(activeCubes, dimensions)
-}
-
-class EnergySource(referenceSystem: ReferenceSystem) {
-    private val activeCubes: MutableSet<Coordinate> = referenceSystem.coordinates.toMutableSet()
-    private val previousActiveCubes = activeCubes.toMutableSet()
-
-    private val dimensions = referenceSystem.getDimensions()
-    private lateinit var spaceBoundaries: Pair<Coordinate, Coordinate>
-
-    init {
-        updateSpaceBoundaries()
-    }
-
-    fun getActiveCubesCount(): Int {
-        return activeCubes.size
-    }
-
-    fun runCycles(cycles: Int): EnergySource {
-        for (cycle in 1..cycles) {
-            runCycle()
-            previousActiveCubes.clear()
-            previousActiveCubes.addAll(activeCubes)
-            updateSpaceBoundaries()
-        }
-        return this
-    }
-
-    private fun runCycle() {
-        val (minimumBoundary, maximumBoundary) = spaceBoundaries
-        val positionsToBeChecked = generateNearbyPositions(minimumBoundary, maximumBoundary, 1).map { Coordinate(it) }
-
-        val previouslyActivePositions = positionsToBeChecked.intersect(previousActiveCubes)
-        val previouslyInactivePositions = positionsToBeChecked.minus(previouslyActivePositions)
-
-        previouslyActivePositions.forEach { position ->
-            val nearbyActiveCubes = findNearbyActiveCubes(position)
-            if (nearbyActiveCubes != 2 && nearbyActiveCubes != 3) {
-                activeCubes.remove(position)
-            }
-        }
-
-        previouslyInactivePositions.forEach { position ->
-            val nearbyActiveCubes = findNearbyActiveCubes(position)
-            if (nearbyActiveCubes == 3) {
-                activeCubes.add(position)
-            }
+            Coordinate(new)
         }
     }
 
-    private fun findNearbyActiveCubes(coordinate: Coordinate): Int {
-        val surroundingPositions = computeSurroundingPositions(coordinate)
-        val intersection = previousActiveCubes.intersect(surroundingPositions).minus(coordinate)
-        return intersection.size
+    override fun getDimensions(): Int {
+        return dimensions
     }
 
-    private fun computeSurroundingPositions(currentPosition: Coordinate): Set<Coordinate> {
-        val relativePositions = computeSurroundingRelativePositions()
-        val absolutePositions = relativePositions.map { Coordinate(it) + currentPosition }
-        return absolutePositions.toSet().minus(currentPosition)
-    }
-
-    private fun computeSurroundingRelativePositions(): List<List<Int>> {
+    private fun computeSurroundingRelativePositions(): List<Coordinate> {
         val min = Coordinate(List(dimensions) { -1 })
         val max = Coordinate(List(dimensions) { 1 })
-        return generateNearbyPositions(min, max)
+        val items = generateNearbyPositions(min, max)
+        val origin = Coordinate(List(dimensions) { 0 })
+        return items.map { Coordinate(it) }.minus(origin)
     }
 
-    private fun generateNearbyPositions(min: Coordinate, max: Coordinate, expansion: Int = 0): List<List<Int>> {
+    private fun generateNearbyPositions(min: Coordinate, max: Coordinate): List<List<Int>> {
         if (min.values.isEmpty()) {
             return listOf(emptyList())
         }
         val allCoordinateCombinations = mutableListOf<List<Int>>()
         val missingMinimumBoundaries = min.values.toMutableList()
         val missingMaximumBoundaries = max.values.toMutableList()
-        val minValue = missingMinimumBoundaries.removeAt(0) - expansion
-        val maxValue = missingMaximumBoundaries.removeAt(0) + expansion
+        val minValue = missingMinimumBoundaries.removeAt(0)
+        val maxValue = missingMaximumBoundaries.removeAt(0)
 
         for (i in minValue..maxValue) {
-            val combinations = generateNearbyPositions(Coordinate(missingMinimumBoundaries), Coordinate(missingMaximumBoundaries), expansion)
+            val combinations = generateNearbyPositions(Coordinate(missingMinimumBoundaries), Coordinate(missingMaximumBoundaries))
             val updatedCombinations = combinations.map {
                 val newList = it.toMutableList()
                 newList.add(0, i)
@@ -114,50 +68,17 @@ class EnergySource(referenceSystem: ReferenceSystem) {
         }
         return allCoordinateCombinations
     }
-
-    private fun updateSpaceBoundaries() {
-        val min = mutableListOf<Int>()
-        val max = mutableListOf<Int>()
-        for (dim in 0 until dimensions) {
-            min.add(activeCubes.minBy { it.values[dim] }?.values?.get(dim) ?: 0)
-            max.add(activeCubes.maxBy { it.values[dim] }?.values?.get(dim) ?: 0)
-        }
-        spaceBoundaries = Coordinate(min) to Coordinate(max)
-    }
 }
 
-class ReferenceSystem(coordinates: List<Coordinate>, private var dimensions: Int = 3) {
-    val coordinates: List<Coordinate> = coordinates.map {
-        val new = it.values.toMutableList()
-        while (new.size < dimensions) {
-            new.add(0)
+fun parseInitialConfig(fileName: String, dimensions: Int = 3): AReferenceSystem {
+    val data = TextFileParser.parseLines(fileName) { it }
+    val activeCubes = mutableListOf<Coordinate>()
+    data.forEachIndexed { rowIndex, row ->
+        row.forEachIndexed { colIndex, cube ->
+            if (cube == '#') {
+                activeCubes.add(Coordinate(listOf(rowIndex, colIndex)))
+            }
         }
-        Coordinate(new)
     }
-
-    fun getDimensions(): Int {
-        return dimensions
-    }
-}
-
-class Coordinate(val values: List<Int>) {
-    operator fun plus(other: Coordinate): Coordinate {
-        val newValues = this.values.zip(other.values) { a, b -> a + b }
-        return Coordinate(newValues)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (other is Coordinate) {
-            return this.values == other.values
-        }
-        return super.equals(other)
-    }
-
-    override fun hashCode(): Int {
-        return this.values.hashCode()
-    }
-
-    override fun toString(): String {
-        return "(" + values.joinToString(", ") + ")"
-    }
+    return CartesianReferenceSystem(activeCubes, dimensions)
 }
