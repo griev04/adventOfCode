@@ -5,9 +5,10 @@ import common.TextFileParser
 fun main() {
     val givenPublicKeys = TextFileParser.parseLines("src/year2020/day25/input.txt") { it.toLong() }
 
-    println("Part 1")
+    println("Day25 Part 1")
     val encryptionKey = EncryptionSystem(givenPublicKeys).getEncryptionKey()
     println(encryptionKey)
+    println("Merry Xmas")
 }
 
 class EncryptionSystem(private val publicKeys: List<Long>) {

@@ -6,12 +6,12 @@ import kotlin.math.roundToInt
 fun main() {
     val passports = TextFileParser.parseGroupedData("src/year2020/day04/input.txt") { parsePassport(it) }
 
-    println("Part 1")
+    println("Day 04 Part 1")
     val fieldRuleMapping = listOf("byr", "iyr", "eyr", "hgt", "hcl", "ecl" ,"pid").map { it to MandatoryRule() }.toMap()
     val completePassports = countValidPassports(passports, fieldRuleMapping)
     println(completePassports)
 
-    println("Part 2")
+    println("Day 04 Part 2")
     val fieldRuleMappingPart2 = mapOf(
             "byr" to MinMaxRule(1920, 2002),
             "iyr" to MinMaxRule(2010, 2020),

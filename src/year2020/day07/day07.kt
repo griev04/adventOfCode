@@ -5,10 +5,10 @@ import common.TextFileParser
 fun main() {
     val bags = TextFileParser.parseLines("src/year2020/day07/input.txt") { parseBag(it) }
 
-    println("Part 1")
+    println("Day 07 Part 1")
     println(bags.filter { it.contains(Bag.make("shiny gold")) }.size)
 
-    println("Part 2")
+    println("Day 07 Part 2")
     println(Bag.make("shiny gold").size() - 1)
 }
 

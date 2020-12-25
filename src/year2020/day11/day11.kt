@@ -5,12 +5,12 @@ import common.TextFileParser
 fun main() {
     var parsedGrid = TextFileParser.parseLines("src/year2020/day11/input.txt") { line -> line.map { Spot(it) } }
 
-    println("Part 1")
+    println("Day 11 Part 1")
     val map1 = SeatMap(parsedGrid)
     val res1 = map1.run(SeatMap.RULE_PART_1)
     println(res1)
 
-    println("Part 2")
+    println("Day 11 Part 2")
     // reload data from disk
     parsedGrid = TextFileParser.parseLines("src/year2020/day11/input.txt") { line -> line.map { Spot(it) } }
     val map2 = SeatMap(parsedGrid)

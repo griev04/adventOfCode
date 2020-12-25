@@ -4,15 +4,15 @@ import common.TextFileParser
 
 fun main() {
     val ticketValidator = createTicketValidator("src/year2020/day16/input.txt")
-    println("Part 1")
+    println("Day 16 Part 1")
     val errorRate = ticketValidator.getErrorRate()
     println(errorRate)
 
-    println("Part 2")
+    println("Day 16 Part 2")
     val departureIndex = ticketValidator.getDepartureIndex()
     println(departureIndex)
 
-    println("Your ticket was:\n${ticketValidator.getMyTicket()}")
+//    println("Your ticket was:\n${ticketValidator.getMyTicket()}")
 }
 
 class TicketValidator(private val rules: List<Rule>, private val myTicket: Ticket, private val otherTickets: List<Ticket>) {

@@ -6,11 +6,11 @@ fun main() {
     val decks = TextFileParser.parseGroupedData("src/year2020/day22/input.txt") { parseDeck(it) }
     val game = CombatGame(decks)
 
-    println("Part 1")
+    println("Day22 Part 1")
     val result1 = game.play().getFinalScore()
     println(result1)
 
-    println("Part 2")
+    println("Day22 Part 2")
     val result2 = game.playRecursive().getFinalScore()
     println(result2)
 }

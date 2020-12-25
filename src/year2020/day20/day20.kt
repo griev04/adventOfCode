@@ -5,11 +5,11 @@ import common.TextFileParser
 fun main() {
     val tiles = TextFileParser.parseGroupedData("src/year2020/day20/input.txt") { parseTile(it) }
     val puzzle = Puzzle(tiles)
-    println("Part 1")
+    println("Day20 Part 1")
     val res1 = puzzle.getCornerTilesProduct()
     println(res1)
 
-    println("Part 2")
+    println("Day20 Part 2")
     val res2 = puzzle.getWaterRoughness()
     println(res2)
 }

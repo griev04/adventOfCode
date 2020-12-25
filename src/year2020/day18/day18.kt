@@ -4,11 +4,11 @@ import common.TextFileParser
 
 fun main() {
     val input = TextFileParser.parseLines("src/year2020/day18/input.txt") { parse(it) }
-    println("Part 1")
+    println("Day 18 Part 1")
     val result = input.map { evaluateExpression(it) { a -> toRpn(a)} }.sum()
     println(result)
 
-    println("Part 2")
+    println("Day 18 Part 2")
     val result2 = input.map { evaluateExpression(it) { a -> toRpnPart2(a) } }.sum()
     println(result2)
 }

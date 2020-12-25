@@ -1,6 +1,7 @@
-package year2020.day17
+package year2020.alternativeSolutions
 
 import common.TextFileParser
+import year2020.day17.Coordinate
 
 fun main() {
     val referenceSystem = parseInitialConfigData("src/year2020/day17/input.txt")

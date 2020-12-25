@@ -1,6 +1,7 @@
-package year2020.day23
+package year2020.alternativeSolutions
 
 import common.TextFileParser
+import year2020.day23.parseCups
 
 fun main() {
     val cups = TextFileParser.parseFile("src/year2020/day23/input.txt") { parseCups(it) }
@@ -8,7 +9,6 @@ fun main() {
     println("Part 1")
     val res = play(cups)
     println(res)
-
 }
 
 fun play(cupsInput: List<Int>): String {

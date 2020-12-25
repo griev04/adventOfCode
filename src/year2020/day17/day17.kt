@@ -5,7 +5,7 @@ import common.TextFileParser
 fun main() {
     val referenceSystem = parseInitialConfig("src/year2020/day17/input.txt")
 
-    println("Part 1")
+    println("Day 17 Part 1")
     val keepActiveCondition = { adjacent: Int -> adjacent == 2 || adjacent == 3 }
     val activateCondition = { adjacent: Int -> adjacent == 3 }
     val gameOfLife = GameOfLife(referenceSystem, keepActiveCondition, activateCondition)
@@ -13,7 +13,7 @@ fun main() {
     val res17 = gameOfLife.getActiveElementsCount()
     println(res17)
 
-    println("Part 2")
+    println("Day 17 Part 2")
     val newReferenceSystem = parseInitialConfig("src/year2020/day17/input.txt", 4)
     val gameOfLife2 = GameOfLife(newReferenceSystem, keepActiveCondition, activateCondition)
     gameOfLife2.skipSteps(6)

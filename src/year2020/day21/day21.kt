@@ -5,11 +5,11 @@ import common.TextFileParser
 fun main() {
     val labels = TextFileParser.parseLines("src/year2020/day21/input.txt") { parse(it) }
     val analyzer = LabelAnalyzer(labels)
-    println("Part 1")
+    println("Day21 Part 1")
     val safeIngredientsCount = analyzer.countSafeIngredientsOccurrence()
     println(safeIngredientsCount)
 
-    println("Part 2")
+    println("Day21 Part 2")
     val dangerousList = analyzer.getDangerousList()
     println(dangerousList)
 }

@@ -4,11 +4,11 @@ import common.TextFileParser
 
 fun main() {
     val data = TextFileParser.parseLines("src/year2020/day10/input.txt") { it.toInt() }
-    println("Part 1")
+    println("Day 10 Part 1")
     println(findJoltDifferencesProduct(data))
     println(findJoltDifferencesProductWithMap(data))
 
-    println("Part 2")
+    println("Day 10 Part 2")
     val tree = parseTree(data)
     val treeBranches = tree.countBranches()
     println(treeBranches)

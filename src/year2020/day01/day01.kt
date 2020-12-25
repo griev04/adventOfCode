@@ -7,12 +7,12 @@ fun main() {
         line.toInt()
     }
     val total = 2020
-    println("Part 1")
-    println(processCoupleNaive(expenses, total))
+    println("Day 01 Part 1")
+//    println(processCoupleNaive(expenses, total))
     println(processCouple(expenses, total))
-    println("Part 2")
-    println(processTripleNaive(expenses, total))
-    println(processTriple(expenses, total))
+    println("Day 01 Part 2")
+//    println(processTripleNaive(expenses, total))
+//    println(processTriple(expenses, total))
     println(processTripleRecursive(expenses, total))
 }
 

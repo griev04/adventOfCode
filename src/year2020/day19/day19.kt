@@ -4,11 +4,11 @@ import common.TextFileParser
 
 fun main() {
     val messageValidator = parseData("src/year2020/day19/input.txt")
-    println("Part 1")
+    println("Day 19 Part 1")
     val validMessages = messageValidator.countValidMessages()
     println(validMessages)
 
-    println("Part 2")
+    println("Day 19 Part 2")
     messageValidator.updateRulesForPart2(listOf("8: 42 | 42 8", "11: 42 31 | 42 11 31"))
     val validMessages2 = messageValidator.countValidMessages()
     println(validMessages2)

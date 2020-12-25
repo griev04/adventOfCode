@@ -6,11 +6,11 @@ import kotlin.math.pow
 fun main() {
     val seats = TextFileParser.parseLines("src/year2020/day05/input.txt") { parseSeat(it) }
 
-    println("Part 1")
+    println("Day 05 Part 1")
     val maxSeatId = seats.maxBy { it.seatId }?.seatId
     println(maxSeatId)
 
-    println("Part 2")
+    println("Day 05 Part 2")
     val missingSeatId = findMissingSeatId(seats)
     println(missingSeatId)
 }

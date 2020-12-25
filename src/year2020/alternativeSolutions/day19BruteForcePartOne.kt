@@ -1,4 +1,4 @@
-package year2020.day19
+package year2020.alternativeSolutions
 
 import common.TextFileParser
 

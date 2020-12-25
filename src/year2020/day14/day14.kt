@@ -5,12 +5,12 @@ import kotlin.math.pow
 
 fun main() {
     val instructions = TextFileParser.parseLines("src/year2020/day14/input.txt") { Program.parseInstruction(it) }
-    println("Part 1")
+    println("Day 14 Part 1")
     val program = Program()
     val res = program.execute(instructions).getSumOfNumbersInMemory()
     println(res)
 
-    println("Part 2")
+    println("Day 14 Part 2")
     val program2 = Program()
     val res2 = program2.execute(instructions, true).getSumOfNumbersInMemory()
     println(res2)

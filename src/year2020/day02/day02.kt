@@ -3,11 +3,11 @@ package year2020.day02
 import common.TextFileParser
 
 fun main() {
-    println("Part 1")
+    println("Day 02 Part 1")
     val result = countValidCredentials("src/year2020/day02/input.txt")
     println(result)
 
-    println("Part 2")
+    println("Day 02 Part 2")
     val result2 = countValidCredentials("src/year2020/day02/input.txt", true)
     println(result2)
 }
@@ -37,7 +37,7 @@ private fun parseCredential(record: String, policyFactory: (character: Char, fir
     return Credential(password, policy)
 }
 
-class Credential(private val password: String, private val policy: IPolicy) {
+class Credential(password: String, policy: IPolicy) {
     private val isValid: Boolean = policy.isPasswordCompliant(password)
 
     fun isValid(): Boolean {

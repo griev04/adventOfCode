@@ -4,17 +4,17 @@ import common.TextFileParser
 
 fun main() {
     val input = TextFileParser.parseLines("src/year2020/day09/input.txt") { it.toLong() }
-    println("Part 1")
+    println("Day 09 Part 1")
     val result1 = findFirstNumber(input)
     println(result1)
 
-    println("Part 2")
+    println("Day 09 Part 2")
     if (result1 != null) {
         println(findWithUntouchedCumulativeListLinear(input, result1))
-        println(findWithUntouchedCumulativeList(input, result1))
-        println(findWithMobileWindow(input, result1))
-        println(findWithCumulativeList(input, result1))
-        println(findBruteForce(input, result1))
+//        println(findWithUntouchedCumulativeList(input, result1))
+//        println(findWithMobileWindow(input, result1))
+//        println(findWithCumulativeList(input, result1))
+//        println(findBruteForce(input, result1))
     }
 }
 

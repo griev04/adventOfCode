@@ -5,13 +5,13 @@ import kotlin.math.*
 
 fun main() {
     val instructions = TextFileParser.parseLines("src/year2020/day12/input.txt") { Pair(it[0], it.takeLast(it.length - 1).toFloat()) }
-    println("Part 1")
+    println("Day 12 Part 1")
     val result1 = NavigationSystem(instructions)
             .navigate()
             .getManhattanDistance()
     println(result1)
 
-    println("Part 2")
+    println("Day 12 Part 2")
     val result2 = NavigationSystem(instructions)
             .setInitialDirectionForPart2(1, -10)
             .navigate()

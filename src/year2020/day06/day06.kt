@@ -5,11 +5,11 @@ import common.TextFileParser
 fun main() {
     val groups = TextFileParser.parseGroupedData("src/year2020/day06/input.txt") { parseGroup(it) }
 
-    println("Part 1")
+    println("Day 06 Part 1")
     val totalUniqueGroupAnswers = getCountOfUniqueAnswersPerGroup(groups)
     println(totalUniqueGroupAnswers)
 
-    println("Part 2")
+    println("Day 06 Part 2")
     val totalCommonGroupAnswers = getCountOfCommonAnswersPerGroup(groups)
     println(totalCommonGroupAnswers)
 

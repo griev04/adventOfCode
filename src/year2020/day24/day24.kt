@@ -8,14 +8,14 @@ import year2020.day17.GameOfLife
 fun main() {
     val sdr = parseInitialTiles("src/year2020/day24/input.txt")
 
-    println("Part 1")
+    println("Day24 Part 1")
     val keepActiveCondition = { adjacent: Int -> adjacent != 0 && adjacent <= 2 }
     val activateCondition = { adjacent: Int -> adjacent == 2 }
     val gameOfLife = GameOfLife(sdr, keepActiveCondition, activateCondition)
     val res = gameOfLife.getActiveElementsCount()
     println(res)
 
-    println("Part 2")
+    println("Day24 Part 2")
     gameOfLife.skipSteps(100)
     val res2 = gameOfLife.getActiveElementsCount()
     println(res2)
