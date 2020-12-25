@@ -15,16 +15,19 @@ fun main() {
 }
 
 fun playMemoryGame(turns: Int, seed: List<Int>): Int {
-    val seen = seed.take(seed.size - 1).mapIndexed { index, el -> el to index + 1 }.toMap().toMutableMap()
+    val seen = IntArray(turns) { 0 }
+    seed.take(seed.size - 1).forEachIndexed { index, el ->
+        seen[el] = index + 1
+    }
     var previous: Int
     var lastSpoken = seed.last()
 
     for (turn in seed.size + 1..turns) {
         previous = lastSpoken
-        lastSpoken = if (seen[lastSpoken] == null) {
+        lastSpoken = if (seen[lastSpoken] == 0) {
             0
         } else {
-            turn - 1 - seen[lastSpoken]!!
+            turn - 1 - seen[lastSpoken]
         }
         seen[previous] = turn - 1
     }
