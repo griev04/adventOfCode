@@ -21,9 +21,9 @@ class MessageValidator(rules: List<Rule>, private val messages: List<String>) {
         return messages.filter { computePossibleMessages(it).contains(it) }.size
     }
 
-    private fun computePossibleMessages(message: String, combinations: List<String> = emptyList(), rule: Rule = rules[0]!!, depth: Int = 0): List<String> {
+    private fun computePossibleMessages(message: String, combinations: List<String> = emptyList(), rule: Rule = rules[0]!!, currentLength: Int = 1): List<String> {
         // input may have loops, so a limit has to be set
-        if (depth > message.length / 2) return emptyList()
+        if (currentLength + 4 > message.length) return emptyList()
 
         if (rule.value != null) {
             return if (combinations.isEmpty()) {
@@ -37,7 +37,7 @@ class MessageValidator(rules: List<Rule>, private val messages: List<String>) {
             var sequenceCombinations = combinations.toList()
             for (element in sequence) {
                 val ruleToApply = rules[element]!!
-                sequenceCombinations = computePossibleMessages(message, sequenceCombinations, ruleToApply, depth + 1)
+                sequenceCombinations = computePossibleMessages(message, sequenceCombinations, ruleToApply, currentLength + sequence.size)
             }
             ruleCombinations.addAll(sequenceCombinations)
         }
