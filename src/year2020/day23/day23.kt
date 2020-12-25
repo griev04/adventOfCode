@@ -1,118 +1,85 @@
 package year2020.day23
 
 import common.TextFileParser
+import java.math.BigInteger
 
 fun main() {
     val cups = TextFileParser.parseFile("src/year2020/day23/input.txt") { parseCups(it) }
 
-    println("Part 1")
-    val game = CircularListGame(cups)
-    val res1 = game.playVariant().getResult()
+    println("Day23 Part 1")
+    val game = CupsGame(cups, 100)
+    val res1 = game.playGame().getResultingList()
     println(res1)
 
-    println("Part 2")
+    println("Day23 Part 2")
     val newCups = updateCupsUpTo(cups, 1000000)
-    val game2 = CircularListGame(newCups)
-    val res2 = game2.playVariant(true).getResult()
+    val game2 = CupsGame(newCups, 10000000)
+    val res2 = game2.playGame().getResultPart2()
     println(res2)
 }
 
-class CircularListGame(input: List<Int>) {
-    private lateinit var valuesNodeMap: Map<Int, Node>
-    private lateinit var currentNode: Node
-    private var minimum: Int = 0
-    private var maximum: Int = 0
-    private var isVariant: Boolean = false
+class CupsGame(private val cups: List<Int>, private val moves: Int) {
+    private lateinit var nextLabels: IntArray
+    private var current: Int = 0
+    private var minimumLabel = cups.min() ?: 0
+    private var maximumLabel = cups.max() ?: 0
 
-    init {
-        initCircularDataStructure(input)
-    }
-
-    fun playVariant(isVariant: Boolean = false): CircularListGame {
-        this.isVariant = isVariant
-        val moves = if (isVariant) {
-            10000000
-        } else {
-            100
+    fun playGame(): CupsGame {
+        // map array to values: each index is a label and its value is the next label
+        nextLabels = IntArray(cups.size + 1) { it }
+        cups.withIndex().forEach { cup ->
+            nextLabels[cup.value] = cups[(cup.index + 1) % cups.size]
         }
+        // set current index as element previous to the first label
+        current = nextLabels.indexOf(cups[0])
+
         repeat(moves) {
             playMove()
         }
         return this
     }
 
-    fun getResult(): String {
-        return if (isVariant) {
-            val resultList = getCurrentList(1, 2)
-            (resultList[1].toBigInteger() * resultList[2].toBigInteger()).toString()
-        } else {
-            val resultList = getCurrentList(1)
-            resultList.joinToString("")
+    fun getResultingList(): String {
+        var res = ""
+        var index = nextLabels.indexOf(1)
+        repeat(nextLabels.size - 1) {
+            res += nextLabels[index]
+            index = nextLabels[index]
         }
+        return res
     }
 
-    private fun getCurrentList(startingValue: Int = -1, requiredLength: Int = valuesNodeMap.size): List<Int> {
-        val startNode = valuesNodeMap[startingValue] ?: currentNode
-        val result = mutableListOf(startNode.value)
-        var currentNode = startNode.next
-        while (currentNode != startNode && result.size < requiredLength + 1) {
-            result.add(currentNode.value)
-            currentNode = currentNode.next
-        }
-        return result
+    fun getResultPart2(): BigInteger {
+        val first = nextLabels[1]
+        val second = nextLabels[first]
+        return first.toBigInteger() * second.toBigInteger()
     }
 
     private fun playMove() {
-        // find next 3
-        val firstOfThree = currentNode.next
-        val secondOfThree = firstOfThree.next
-        val thirdOfThree = secondOfThree.next
-        // link current to the following node -> detach 3 nodes
-        currentNode.linkTo(thirdOfThree.next)
-        // find destination node
-        val destinationNode = findDestination(listOf(firstOfThree.value, secondOfThree.value, thirdOfThree.value))
-        // link last removed to node following the destination
-        thirdOfThree.linkTo(destinationNode.next)
-        // link destination node to first removed node
-        destinationNode.linkTo(firstOfThree)
-        nextNode()
+        val currentLabel = nextLabels[current]
+        val first = nextLabels[currentLabel]
+        val second = nextLabels[first]
+        val third = nextLabels[second]
+        // update next item
+        val nextLabel = nextLabels[third]
+        nextLabels[currentLabel] = nextLabel
+        // add back removed items
+        val newDestination = findDestinationLabel(listOf(first, second, third))
+        nextLabels[third] = nextLabels[newDestination]
+        nextLabels[newDestination] = first
+        // move to next item
+        current = currentLabel
     }
 
-    private fun findDestination(removedValues: List<Int>): Node {
-        var targetValue = currentNode.value - 1
+    private fun findDestinationLabel(removedValues: List<Int>): Int {
+        var targetValue = nextLabels[current] - 1
         while (true) {
             when {
                 (targetValue in removedValues) -> targetValue--
-                (targetValue < minimum) -> targetValue = maximum
-                else -> valuesNodeMap[targetValue]?.let { return it }
+                (targetValue < minimumLabel) -> targetValue = maximumLabel
+                else -> return targetValue
             }
         }
-    }
-
-    private fun nextNode() {
-        currentNode = currentNode.next
-    }
-
-    private fun initCircularDataStructure(input: List<Int>) {
-        var previous: Node? = null
-        valuesNodeMap = input.map { value ->
-            val current = Node(value)
-            previous?.linkTo(current)
-            previous = current
-            value to current
-        }.toMap()
-        // link last element to first one to have circular list
-        currentNode = valuesNodeMap[input[0]]!!
-        currentNode.let { previous?.linkTo(it) }
-        minimum = input.min() ?: 0
-        maximum = input.max() ?: 0
-    }
-}
-
-class Node(val value: Int) {
-    lateinit var next: Node
-    fun linkTo(other: Node) {
-        next = other
     }
 }
 
