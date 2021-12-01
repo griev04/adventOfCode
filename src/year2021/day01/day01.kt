@@ -10,29 +10,25 @@ fun main() {
     println(result1)
 
     println("Day 01 Part 2")
-    val result2 = countDepthIncreasesWithSlidingWindow(input, 3)
+    val result2 = countGroupedDepthIncreases(input)
     println(result2)
 
 }
 
-private fun countDepthIncreases(depthSeries: Array<Long>): Long {
-    return countDepthIncreasesWithSlidingWindow(depthSeries)
+fun countGroupedDepthIncreases(depthSeries: Array<Long>): Int {
+    return countDepthIncreases(depthSeries, 3)
 }
 
-private fun countDepthIncreasesWithSlidingWindow(depthSeries: Array<Long>, windowSize: Int = 1): Long {
-    return depthSeries.foldIndexed(0) { index: Int, acc: Long, _ ->
-        val isValidRange = index > 0 && index <= depthSeries.size - windowSize
-        if ( isValidRange && isDepthIncrease(depthSeries, index, windowSize)) {
-            acc+1
-        } else {
-            acc
-        }
+fun countDepthIncreases(depthSeries: Array<Long>, windowSize: Int = 1): Int {
+    var count = 0
+    (windowSize until depthSeries.size).forEach { index ->
+        if (isDepthIncrease(depthSeries, index, windowSize)) count++
     }
+    return count
 }
 
-private fun isDepthIncrease(depthSeries: Array<Long>, index: Int, windowSize: Int = 1) =
-    sumValues(depthSeries, index, windowSize) > sumValues(depthSeries, index - 1, windowSize)
+private fun isDepthIncrease(depthSeries: Array<Long>, index: Int, windowSize: Int): Boolean =
+    sumSlidingWindowValues(depthSeries, index, windowSize, 1) > sumSlidingWindowValues(depthSeries, index, windowSize)
 
-private fun sumValues(depthSeries: Array<Long>, currentIndex: Int, windowSize: Int = 1): Long {
-    return depthSeries.slice(currentIndex until currentIndex+windowSize).sum()
-}
+private fun sumSlidingWindowValues(depthSeries: Array<Long>, currentIndex: Int, windowSize: Int = 1, offset: Int = 0): Long =
+    depthSeries.slice(currentIndex-windowSize+offset until currentIndex+offset).sum()
