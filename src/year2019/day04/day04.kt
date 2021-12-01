@@ -44,7 +44,7 @@ private fun hasAdjacentDigits(num: Int, onlyTwoAdjacent: Boolean = false): Boole
 }
 
 fun checkForIncreasingSequence(string: String, previous: Int = 0): Boolean {
-    if (string.isEmpty) return true
+    if (string.isEmpty()) return true
     if (string[0].toInt() < previous) return false
     if (checkForIncreasingSequence(string.removeRange(0, 1), string[0].toInt())) {
         return true
