@@ -12,7 +12,6 @@ fun main() {
     println("Day 01 Part 2")
     val result2 = countGroupedDepthIncreases(input)
     println(result2)
-
 }
 
 fun countGroupedDepthIncreases(depthSeries: Array<Long>): Int {
