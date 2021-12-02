@@ -16,7 +16,7 @@ fun main() {
     println(result2)
 }
 
-class NavigationSystem() {
+class NavigationSystem {
     private val currentPosition: Position = Position(0, 0)
 
     fun navigateWith(courseInstructions: List<Instruction>, commandInterpretation: CommandInterpretation): NavigationSystem {
@@ -27,8 +27,8 @@ class NavigationSystem() {
     fun getResult(): Long = currentPosition.getPositionValue()
 }
 
-class CommandInterpretation(private val rule: (instruction: Instruction, position: Position) -> Position) {
-    operator fun invoke(instruction: Instruction, position: Position): Position = rule(instruction, position)
+class CommandInterpretation(private val rule: (instruction: Instruction, position: Position) -> Unit) {
+    operator fun invoke(instruction: Instruction, position: Position) = rule(instruction, position)
 
     companion object {
         val PART_ONE = CommandInterpretation { instruction, position ->
@@ -68,34 +68,28 @@ class Instruction private constructor(val direction: Direction, val distance: In
 }
 
 class Position(private var horizontalPosition: Long, private var depth: Long, private var aim: Int = 0) {
-    fun moveForward(distance: Int): Position {
+    fun moveForward(distance: Int) {
         horizontalPosition += distance
-        return this
     }
 
-    fun increaseDepth(distance: Int): Position {
+    fun increaseDepth(distance: Int) {
         depth += distance
-        return this
     }
 
-    fun decreaseDepth(distance: Int): Position {
+    fun decreaseDepth(distance: Int) {
         depth -= distance
-        return this
     }
 
-    fun increaseAim(distance: Int): Position {
+    fun increaseAim(distance: Int) {
         aim += distance
-        return this
     }
 
-    fun decreaseAim(distance: Int): Position {
+    fun decreaseAim(distance: Int) {
         aim -= distance
-        return this
     }
 
-    fun increaseDepthWithAim(distance: Int): Position {
+    fun increaseDepthWithAim(distance: Int) {
         depth += distance * aim
-        return this
     }
 
     fun getPositionValue(): Long {
