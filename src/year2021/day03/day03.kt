@@ -5,7 +5,7 @@ import kotlin.math.pow
 
 fun main() {
     val input = TextFileParser.parseLines("src/year2021/day03/input.txt") { it }
-    val report = DiagnosticReport(input)
+    val report = DiagnosticReport.makeFrom(input)
 
 
     println("Day 03 Part 1")
@@ -13,32 +13,59 @@ fun main() {
     println(result1)
 
     println("Day 03 Part 2")
-    val result2 = ""
+    val result2 = report.getLifeSupportRating()
     println(result2)
 }
 
-class DiagnosticReport(input: List<String>) {
-    private val readings = input.map { Reading.makeFromBinary(it) }
+class DiagnosticReport(private val readings: List<Reading>) {
     private val readingsCount = readings.size
     private val readingSize = readings.first().getReadingLength()
+    private val gamma: Reading = computeGamma()
+    private val epsilon: Reading = gamma.getComplementaryValue()
 
-    fun getPowerConsumption(): Long {
+    private fun computeGamma(): Reading {
         val readingsCount = readingsCount
         val result = LongArray(readingSize)
         readings.forEach { r ->
-            r.values.forEachIndexed { index, b -> if (b) result[index] = result[index] + 1}
+            r.values.forEachIndexed { index, b -> if (b) result[index] = result[index] + 1 }
+        }
+        return Reading.make(result.map { it >= readingsCount / 2.0 })
+    }
+
+    fun getPowerConsumption(): Long {
+        return gamma.getDecimalRepresentation() * epsilon.getDecimalRepresentation()
+    }
+
+    fun getLifeSupportRating(): Long = getOxygenRate() * getCO2ScrubRate()
+
+    private fun getOxygenRate(): Long {
+        return computeRate(false).readings.first().getDecimalRepresentation()
+    }
+
+    private fun getCO2ScrubRate(): Long {
+        return computeRate(true).readings.first().getDecimalRepresentation()
+    }
+
+    private fun computeRate(isCO2: Boolean, position: Int = 0, report: DiagnosticReport = this): DiagnosticReport {
+        if (report.readingsCount == 1 || position >= report.readingSize) {
+            return report
+        }
+        val targetValue = if (isCO2) report.epsilon.values[position] else report.gamma.values[position]
+        val newReadings = report.readings.filter {
+            it.values[position] == targetValue
         }
 
-        val gamma = Reading.make(result.map { it > readingsCount/2 })
-        val epsilon = gamma.getComplementaryValue()
-        return gamma.getDecimalRepresentation() * epsilon.getDecimalRepresentation()
+        return computeRate(isCO2, position + 1, DiagnosticReport(newReadings))
+    }
+
+    companion object {
+        fun makeFrom(input: List<String>): DiagnosticReport {
+            return DiagnosticReport(input.map { Reading.makeFromBinary(it) })
+        }
     }
 }
 
-
-
-
-class Reading private constructor(val values: List<Boolean>){
+class Reading private constructor(val values: List<Boolean>) {
     fun getReadingLength(): Int {
         return values.size
     }
@@ -55,8 +82,10 @@ class Reading private constructor(val values: List<Boolean>){
         fun makeFromBinary(binaryValue: String): Reading {
             return Reading(binaryValue.map { it == '1' })
         }
+
         fun make(booleans: List<Boolean>): Reading {
             return Reading(booleans)
         }
     }
 }
+
