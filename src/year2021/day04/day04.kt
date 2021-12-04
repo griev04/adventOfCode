@@ -11,106 +11,117 @@ fun main() {
 
     println("Day 04 Part 2")
     val newBingo = parseBingo("src/year2021/day04/input.txt")
-    val result2 = newBingo.playUntilTheEnd().getWinningScore()
+    val result2 = newBingo.playUntilLastWinner().getWinningScore()
     println(result2)
 }
 
-class BingoSubsystem {
-    private val boards: MutableList<Board> = mutableListOf()
-    private val extractionNumbers: MutableList<Int> = mutableListOf()
-    private var extraction: Int = 0
-    private var hasWinner: Boolean = false
+class BingoSubsystem private constructor(
+    private val boards: MutableList<Board>,
+    private val extractionNumbers: List<Int>
+) {
+    private var isGameOver: Boolean = false
+    private var lastExtractedNumber: Int? = null
     private var winner: Board? = null
 
-    fun withBoards(boards: List<Board>): BingoSubsystem {
-        this.boards.addAll(boards)
-        return this
-    }
-
-    fun withExtractedValues(values: List<Int>): BingoSubsystem {
-        extractionNumbers.addAll(values)
-        return this
-    }
-
     fun play(): BingoSubsystem {
-        while (!hasWinner && extraction < extractionNumbers.size) {
-            val currentValue = extractionNumbers[extraction]
-            boards.forEach { board ->
-                board.markNumber(currentValue)
-                if (board.isWinner()) {
-                    hasWinner = true
-                    winner = board
-                    return this
-                }
-            }
-            extraction++
-        }
+        play(true)
         return this
     }
 
-    fun playUntilTheEnd(): BingoSubsystem {
-        extraction = -1
-        while(boards.isNotEmpty() && extraction < extractionNumbers.size) {
-            extraction++
-
-            val currentValue = extractionNumbers[extraction]
-            val winningBoards = boards.filter { board ->
-                board.markNumber(currentValue)
-                board.isWinner()
-            }.also { if (it.isNotEmpty()) winner = it.last() }
-            boards.removeAll(winningBoards)
-        }
+    fun playUntilLastWinner(): BingoSubsystem {
+        play(false)
         return this
     }
 
     fun getWinningScore(): Int {
-        return winner?.getScore(extractionNumbers[extraction]) ?: throw Exception("No winner yet")
+        return winner?.let { winner -> lastExtractedNumber?.let { number -> winner.getScore(number) } }
+            ?: throw Exception("No winner yet")
+    }
+
+    private fun play(classicGameMode: Boolean = true) {
+        var extractionIndex = 0
+        while (!isGameOver && extractionIndex < extractionNumbers.size) {
+            val currentValue = extractionNumbers[extractionIndex]
+            val winningBoards = boards.filter { board -> board.markNumber(currentValue).isComplete() }
+
+            checkForWinner(classicGameMode, winningBoards, currentValue)
+            extractionIndex++
+        }
+    }
+
+    private fun checkForWinner(
+        classicMode: Boolean,
+        winningBoards: List<Board>,
+        currentValue: Int
+    ) {
+        if (classicMode) {
+            winningBoards.firstOrNull()?.let {
+                endGame(it, currentValue)
+            }
+        } else {
+            boards.removeAll(winningBoards)
+            if (boards.isEmpty()) {
+                endGame(winningBoards.last(), currentValue)
+            }
+        }
+    }
+
+    private fun endGame(board: Board, currentValue: Int) {
+        isGameOver = true
+        winner = board
+        lastExtractedNumber = currentValue
+    }
+
+    companion object {
+        fun make(boards: List<Board>, extractedNumbers: List<Int>): BingoSubsystem {
+            return BingoSubsystem(boards.toMutableList(), extractedNumbers)
+        }
     }
 }
 
-class Board private constructor(private val values: List<BoardRow>){
+class Board private constructor(private val rows: List<BoardRow>) {
     fun markNumber(number: Int): Board {
-        values.flatMap { it.values }.find { it.value == number }?.mark()
+        rows.flatMap { row -> row.cells }.find { it.value == number }?.mark()
         return this
     }
 
-    fun isWinner(): Boolean {
-        return values.any { it.isComplete() } || isAnyColumnComplete()
-    }
-
-    private fun isAnyColumnComplete(): Boolean {
-        return (values.indices).any { index ->
-            BoardRow(values.map { it.values[index] }).isComplete() }
+    fun isComplete(): Boolean {
+        return hasCompleteRow() || hasCompleteColumn()
     }
 
     fun getScore(extractedValue: Int): Int {
-        return extractedValue * values.sumBy { row -> row.values.filter { v -> !v.isMarked() }.map { v -> v.value }.sum() }
+        return extractedValue * rows.sumBy { row -> row.cells.filter { v -> !v.isMarked() }.map { v -> v.value }.sum() }
+    }
+
+    private fun hasCompleteRow(): Boolean = rows.any { row -> row.isComplete() }
+
+    private fun hasCompleteColumn(): Boolean {
+        return (rows.indices).any { index ->
+            BoardRow(rows.map { it.cells[index] }).isComplete()
+        }
     }
 
     companion object {
         fun make(values: List<List<Int>>): Board {
             return Board(values.map { row -> BoardRow(row.map { BoardCell(it) }) })
         }
+
+        private class BoardRow(val cells: List<BoardCell>) {
+            fun isComplete(): Boolean = cells.all { it.isMarked() }
+        }
+
+        private class BoardCell(val value: Int) {
+            private var marked: Boolean = false
+
+            fun isMarked(): Boolean = marked
+
+            fun mark() {
+                marked = true
+            }
+        }
     }
 }
 
-
-class BoardRow(val values: List<BoardCell>) {
-    fun isComplete(): Boolean {
-        return values.all { it.isMarked() }
-    }
-}
-
-class BoardCell(val value: Int) {
-    private var marked: Boolean = false
-
-    fun isMarked(): Boolean = marked
-
-    fun mark(): BoardCell {
-        marked = true
-        return this
-    }
-}
 
 fun parseBingo(fileName: String, groupSeparator: String = "\n\n"): BingoSubsystem {
     val text = File(fileName).readText()
@@ -120,5 +131,5 @@ fun parseBingo(fileName: String, groupSeparator: String = "\n\n"): BingoSubsyste
         val groupValues = group.split("\n").map { it.split(" ").filter { v -> v.isNotEmpty() }.map { v -> v.toInt() } }
         Board.make(groupValues)
     }
-    return BingoSubsystem().withBoards(boards).withExtractedValues(extractedNumbers)
+    return BingoSubsystem.make(boards, extractedNumbers)
 }
