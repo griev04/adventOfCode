@@ -32,23 +32,26 @@ class TopographicMap(private val map: Array<IntArray>) {
         return lowPoints.mapIndexed { x, row ->
             row.mapIndexedNotNull { y, pos ->
                 if (pos >= 0) {
-                    recursive(x, y)
+                    getBasinSize(x, y)
                 } else {
                     null
                 }
             }
-        }.flatten().sortedDescending().take(3).fold(1L) {acc, i -> acc * i }
+        }.flatten().sortedDescending().take(3).fold(1L) { acc, i -> acc * i }
     }
 
-    private fun recursive(x: Int, y: Int, basinMask: Array<Array<Boolean>> = Array(rowCount) { Array(colCount) { false } }): Int? {
-        if (isOutOfBasin(x, y)) {
-            return null
+    private fun getBasinSize(
+        x: Int,
+        y: Int,
+        basinMask: Array<Array<Boolean>> = Array(rowCount) { Array(colCount) { false } }
+    ): Int {
+        if (isOutOfBasin(x, y) || basinMask[x][y]) {
+            return 0
         }
         basinMask[x][y] = true
-        getAdjacentPositionsTo(x, y, basinMask).forEach { pos ->
-            recursive(pos.first, pos.second, basinMask)
+        return 1 + getAdjacentPositionsTo(x, y, basinMask).sumBy { pos ->
+            getBasinSize(pos.first, pos.second, basinMask)
         }
-        return basinMask.flatten().count { it }
     }
 
     private fun isOutOfBasin(x: Int, y: Int): Boolean {
@@ -67,7 +70,8 @@ class TopographicMap(private val map: Array<IntArray>) {
 
     private fun isLowerPoint(x: Int, y: Int): Boolean {
         val currentPosition = getValueAtPosition(x, y)
-        return currentPosition < 9 && getAdjacentPositionsTo(x, y).map { getValueAtPosition(it.first, it.second) }
+        return currentPosition < 9 && getAdjacentPositionsTo(x, y)
+            .map { getValueAtPosition(it.first, it.second) }
             .all { it > currentPosition }
     }
 
@@ -75,7 +79,10 @@ class TopographicMap(private val map: Array<IntArray>) {
         val result = mutableListOf<Pair<Int, Int>>()
         for (i in (-1..1)) {
             for (j in (-1..1)) {
-                if (isAdjacentPoint(i, j) && isPointInMap(x + i, y + j) && !isInsideBasin(basinMask, x+i, y+j)) {
+                if (isAdjacentPoint(i, j)
+                    && isPointInMap(x + i, y + j)
+                    && !isInsideBasin(basinMask, x + i, y + j)
+                ) {
                     result.add(Pair(x + i, y + j))
                 }
             }
@@ -84,11 +91,10 @@ class TopographicMap(private val map: Array<IntArray>) {
     }
 
     private fun isInsideBasin(basinMask: Array<Array<Boolean>>?, x: Int, y: Int): Boolean {
-        if (basinMask == null) return false
-        return basinMask[x][y]
+        return basinMask?.let { it[x][y] } ?: false
     }
 
-    private fun isPointInMap(x: Int, y: Int): Boolean = map.indices.contains(x) && map.first().indices.contains(y)
+    private fun isPointInMap(x: Int, y: Int): Boolean = x in map.indices && y in map.first().indices
 
     private fun isAdjacentPoint(x: Int, y: Int) = abs(x) != abs(y)
 }
